@@ -11,14 +11,14 @@ interface AppProvidersProps {
 }
 
 const AppProviders = ({ children }: AppProvidersProps) => {
-    // Create query client as state to ensure it's stable across renders
+
     const [queryClient] = useState(
         () =>
             new QueryClient({
                 defaultOptions: {
                     queries: {
                         retry: 1,
-                        staleTime: 60 * 1000, // 1 minute
+                        staleTime: 60 * 1000,
                     },
                 },
             })

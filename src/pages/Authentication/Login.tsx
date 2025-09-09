@@ -1,18 +1,40 @@
-import { Toaster } from "@/components/ui/toaster";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useGlobal } from "reactn";
+import { Link, useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+import { useDispatch } from "react-redux";
+import { useToasts } from "react-toast-notifications";
+import Div100vh from "react-div-100vh";
+import { FaLock, FaUser, FaPencilAlt, FaEnvelope } from "react-icons/fa";
 
-export default function Login() {
+import Credits from "./components/Credits";
+import Logo from "./components/Logo";
+import Input from "./components/Input";
+
+import setAuthToken from "@/actions/setAuthToken";
+import initIO from "@/actions/initIO";
+import login from "@/actions/login";
+import register from "@/actions/register";
+import configuration from "@/config/configuration";
+import AuthNav from "./components/AuthNav";
+import backgroundImage from "../../assets/background.jpg";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
+function Login() {
+    const dispatch = useDispatch();
+    const { addToast } = useToasts();
     const navigate = useNavigate();
+    const setToken = useGlobal("token")[1];
+    const setUser = useGlobal("user")[1];
+    const [entryPath, setEntryPath] = useGlobal("entryPath");
 
-    // Login state
+    // --- Login state ---
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [keep, setKeep] = useState(true);
     const [loginErrors, setLoginErrors] = useState({});
 
-    // Register state
-    const [activeForm, setActiveForm] = useState<"login" | "register">("login");
+    // --- Register state ---
     const [registerUsername, setRegisterUsername] = useState("");
     const [registerEmail, setRegisterEmail] = useState("");
     const [registerFirstName, setRegisterFirstName] = useState("");
@@ -22,168 +44,269 @@ export default function Login() {
     const [registerRepeatPassword, setRegisterRepeatPassword] = useState("");
     const [registerErrors, setRegisterErrors] = useState({});
 
-    const onLogin = async (e: React.FormEvent) => {
+    // Toggle forms
+    const [step, setStep] = useState(1);
+
+    useEffect(() => {
+        if (window.self !== window.top) {
+            addToast(
+                <a
+                    href="#"
+                    onClick={(e) => {
+                        e.preventDefault();
+                        window.top.location.href = configuration.url;
+                    }}
+                >
+                    <b>
+                        Click here to remove the Envato frame or meetings will
+                        not work properly.
+                    </b>
+                </a>,
+                { appearance: "warning", autoDismiss: false }
+            );
+        }
+    }, []);
+
+    const onLogin = async (e) => {
         e.preventDefault();
-        console.log(e.target);
-        
+        try {
+            const res = await login(email, password);
+            
+            if (keep) localStorage.setItem("token", res.data.token);
+            if (keep)
+                localStorage.setItem(
+                    "user",
+                    JSON.stringify(jwtDecode(res.data.token))
+                );
+            setLoginErrors({});
+            setAuthToken(res.data.token);
+            setUser(jwtDecode(res.data.token));
+            setToken(res.data.token);
+            dispatch(initIO(res.data.token));
+            navigate(["/login", "/"].includes(entryPath) ? "/" : entryPath, {
+                replace: true,
+            });
+            await setEntryPath(null);
+        } catch (e) {
+            let errors = {};
+            if (!e.response || typeof e.response.data !== "object")
+                errors.generic = "Could not connect to server.";
+            else errors = e.response.data;
+            setLoginErrors(errors);
+        }
     };
 
-    const onRegister = async (e: React.FormEvent) => {
+    const onRegister = async (e) => {
         e.preventDefault();
-        console.log(e.target);
+        try {
+            await register({
+                username: registerUsername,
+                email: registerEmail,
+                firstName: registerFirstName,
+                lastName: registerLastName,
+                type: registerUserType,
+                password: registerPassword,
+                repeatPassword: registerRepeatPassword,
+            });
+            const res = await login(registerEmail, registerPassword);
+            setRegisterErrors({});
+            if (keep) localStorage.setItem("token", res.data.token);
+            setAuthToken(res.data.token);
+            setUser(jwtDecode(res.data.token));
+            setToken(res.data.token);
+            dispatch(initIO(res.data.token));
+        } catch (e) {
+            let errors = {};
+            if (!e.response || typeof e.response.data !== "object")
+                errors.generic = "Could not connect to server.";
+            else errors = e.response.data;
+            setRegisterErrors(errors);
+        }
     };
+
+    const loginInfo = Object.keys(loginErrors).map((key) => (
+        <div className="text-center text-red-500 text-sm" key={key}>
+            {loginErrors[key]}
+        </div>
+    ));
+
+    const registerInfo = Object.keys(registerErrors).map((key) => (
+        <div className="text-center text-red-500 text-sm" key={key}>
+            {registerErrors[key]}
+        </div>
+    ));
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 to-blue-700 p-4">
-            {/* <Toaster position="top-right" /> */}
-            <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6 sm:p-8">
-                <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">
-                    {activeForm === "login" ? "Login" : "Register"}
-                </h2>
+        <Div100vh>
+            <AuthNav />
+            <div
+                className="w-screen h-full relative flex items-center justify-center bg-cover bg-center transition-all duration-500"
+                style={{ backgroundImage: `url('${backgroundImage}')` }}
+            >
+                {/* Dark overlay */}
+                <div className="absolute inset-0 bg-blue-900/65 transition-colors duration-500" />
+                <Credits />
 
-                {activeForm === "login" ? (
-                    <form onSubmit={onLogin} className="flex flex-col gap-4">
-                        {loginErrors.generic && (
-                            <p className="text-red-500 text-center">
-                                {loginErrors.generic}
-                            </p>
-                        )}
-                        <input
-                            type="text"
-                            placeholder="Email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            required
-                        />
-                        <input
-                            type="password"
-                            placeholder="Password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            required
-                        />
-                        <label className="flex items-center gap-2 text-gray-600">
-                            <input
-                                type="checkbox"
-                                checked={keep}
-                                onChange={(e) => setKeep(e.target.checked)}
-                                className="accent-blue-600"
-                            />
-                            Keep me logged in
-                        </label>
-                        <button
-                            type="submit"
-                            className="bg-blue-600 text-white rounded-lg py-3 font-semibold hover:bg-blue-700 transition"
-                        >
-                            Login
-                        </button>
-                        <p className="text-center text-sm text-gray-500">
-                            Need an account?{" "}
-                            <button
-                                type="button"
-                                className="text-blue-600 font-medium hover:underline"
-                                onClick={() => setActiveForm("register")}
+                <div className="relative z-10 flex flex-col items-center justify-center w-full max-w-md px-4">
+                    <Logo />
+
+                    {/* Forms */}
+                    <div className="transition-all duration-500 max-w-[300px] w-full mx-auto">
+                        {step == 1 && (
+                            <form
+                                onSubmit={onLogin}
+                                className="w-full space-y-4  transition-all duration-500"
                             >
-                                Register
-                            </button>
-                        </p>
-                    </form>
-                ) : (
-                    <form onSubmit={onRegister} className="flex flex-col gap-4">
-                        {registerErrors.generic && (
-                            <p className="text-red-500 text-center">
-                                {registerErrors.generic}
-                            </p>
+                                {loginInfo}
+
+                                <Input
+                                    icon={<FaUser />}
+                                    placeholder="Username or email"
+                                    type="text"
+                                    onChange={(e) => setEmail(e.target.value)}
+                                />
+                                <Input
+                                    icon={<FaLock />}
+                                    placeholder="Password"
+                                    type="password"
+                                    onChange={(e) =>
+                                        setPassword(e.target.value)
+                                    }
+                                />
+
+                                <label className="flex items-center gap-2 text-sm text-gray-300 hover:text-white transition-colors cursor-pointer">
+                                    <input
+                                        type="checkbox"
+                                        checked={keep}
+                                        onChange={(e) =>
+                                            setKeep(e.target.checked)
+                                        }
+                                        className="w-4 h-4 rounded transition-all"
+                                    />
+                                    <span>Keep me logged in</span>
+                                </label>
+
+                                <button className="w-full py-1.5 rounded-full bg-white text-black hover:bg-gray-200 active:scale-95 transition-all">
+                                    LOG IN
+                                </button>
+
+                                <div className="text-center mt-2 flex flex-col">
+                                    <button
+                                        type="button"
+                                        onClick={() => setStep(2)}
+                                        className="text-sm text-blue-200 hover:text-white transition-colors"
+                                    >
+                                        Need an account? Register now!
+                                    </button>
+                                    <Link
+                                        to="/forgot-password"
+                                        className="text-sm text-blue-200 hover:text-white transition-colors"
+                                    >
+                                        Forgot your password?
+                                    </Link>
+                                </div>
+                            </form>
                         )}
-                        <input
-                            type="text"
-                            placeholder="Username"
-                            value={registerUsername}
-                            onChange={(e) =>
-                                setRegisterUsername(e.target.value)
-                            }
-                            className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            required
-                        />
-                        <input
-                            type="email"
-                            placeholder="Email"
-                            value={registerEmail}
-                            onChange={(e) => setRegisterEmail(e.target.value)}
-                            className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            required
-                        />
-                        <input
-                            type="text"
-                            placeholder="First Name"
-                            value={registerFirstName}
-                            onChange={(e) =>
-                                setRegisterFirstName(e.target.value)
-                            }
-                            className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            required
-                        />
-                        <input
-                            type="text"
-                            placeholder="Last Name"
-                            value={registerLastName}
-                            onChange={(e) =>
-                                setRegisterLastName(e.target.value)
-                            }
-                            className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            required
-                        />
-                        <select
-                            value={registerUserType}
-                            onChange={(e) =>
-                                setRegisterUserType(e.target.value)
-                            }
-                            className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                        >
-                            <option value="user">User</option>
-                            <option value="consultant">Consultant</option>
-                        </select>
-                        <input
-                            type="password"
-                            placeholder="Password"
-                            value={registerPassword}
-                            onChange={(e) =>
-                                setRegisterPassword(e.target.value)
-                            }
-                            className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            required
-                        />
-                        <input
-                            type="password"
-                            placeholder="Repeat Password"
-                            value={registerRepeatPassword}
-                            onChange={(e) =>
-                                setRegisterRepeatPassword(e.target.value)
-                            }
-                            className="border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            required
-                        />
-                        <button
-                            type="submit"
-                            className="bg-blue-600 text-white rounded-lg py-3 font-semibold hover:bg-blue-700 transition"
-                        >
-                            Register
-                        </button>
-                        <p className="text-center text-sm text-gray-500">
-                            Already have an account?{" "}
-                            <button
-                                type="button"
-                                className="text-blue-600 font-medium hover:underline"
-                                onClick={() => setActiveForm("login")}
+                        {step == 2 && (
+                            <form
+                                onSubmit={onRegister}
+                                className="w-full space-y-4 transition-all duration-500"
                             >
-                                Login
-                            </button>
-                        </p>
-                    </form>
-                )}
+                                {registerInfo}
+                                <Input
+                                    icon={<FaUser />}
+                                    placeholder="Username"
+                                    type="text"
+                                    onChange={(e) =>
+                                        setRegisterUsername(e.target.value)
+                                    }
+                                />
+                                <Input
+                                    icon={<FaEnvelope />}
+                                    placeholder="Email"
+                                    type="email"
+                                    onChange={(e) =>
+                                        setRegisterEmail(e.target.value)
+                                    }
+                                />
+                                <Input
+                                    icon={<FaPencilAlt />}
+                                    placeholder="First Name"
+                                    type="text"
+                                    onChange={(e) =>
+                                        setRegisterFirstName(e.target.value)
+                                    }
+                                />
+                                <Input
+                                    icon={<FaPencilAlt />}
+                                    placeholder="Last Name"
+                                    type="text"
+                                    onChange={(e) =>
+                                        setRegisterLastName(e.target.value)
+                                    }
+                                />
+                                <Select
+                                    onValueChange={(value) =>
+                                        setRegisterUserType(value)
+                                    }
+                                    defaultValue="User"
+                                >
+                                    <SelectTrigger className="w-full rounded-full border border-gray-400 bg-transparent text-gray-300 px-3 py-2 focus:ring-1 focus:ring-blue-500 focus:outline-none transition-all duration-300">
+                                        <SelectValue placeholder="Select user type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="User">
+                                            User
+                                        </SelectItem>
+                                        <SelectItem value="Consultant">
+                                            Consultant
+                                        </SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <Input
+                                    icon={<FaLock />}
+                                    placeholder="Password"
+                                    type="password"
+                                    onChange={(e) =>
+                                        setRegisterPassword(e.target.value)
+                                    }
+                                />
+                                <Input
+                                    icon={<FaLock />}
+                                    placeholder="Repeat Password"
+                                    type="password"
+                                    onChange={(e) =>
+                                        setRegisterRepeatPassword(
+                                            e.target.value
+                                        )
+                                    }
+                                />
+                                <button className="w-full py-1.5 rounded-full bg-white text-black hover:bg-gray-200 active:scale-95 transition-all">
+                                    Register
+                                </button>
+
+                                <div className="text-center mt-2 flex flex-col">
+                                    <button
+                                        type="button"
+                                        onClick={() => setStep(1)}
+                                        className="text-sm text-blue-200 hover:text-white transition-colors"
+                                    >
+                                        Back to login
+                                    </button>
+                                    <Link
+                                        to="/forgot-password"
+                                        className="text-sm text-blue-200 hover:text-white transition-colors"
+                                    >
+                                        Forgot your password?
+                                    </Link>
+                                </div>
+                            </form>
+                        )}
+                    </div>
+                </div>
             </div>
-        </div>
+        </Div100vh>
     );
 }
+
+export default Login;
