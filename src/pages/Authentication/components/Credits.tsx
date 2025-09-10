@@ -1,4 +1,3 @@
-import { useGlobal } from "reactn";
 import moment from "moment";
 import configuration from "@/config/configuration";
 
@@ -17,7 +16,6 @@ function Credits() {
 }
 
 function Copyright() {
-    const version = useGlobal("version")[0];
     const brand = configuration.brand || "Sewamahe";
     const year = moment().year();
 
@@ -28,7 +26,7 @@ function Copyright() {
         >
             <span className="text-sm text-gray-300">
                 © {year} {brand}
-                {configuration.showCredits && <Credits />} - v{version}
+                {configuration.showCredits && <Credits />} - v
             </span>
         </div>
     );

@@ -1,20 +1,18 @@
-import { createStore, applyMiddleware, compose } from "redux";
-import { thunk } from "redux-thunk";
-import rootReducer from "./reducers";
+import { configureStore } from "@reduxjs/toolkit";
+import postsReducer from "./features/posts/postsSlice";
+import commentsReducer from "./features/comments/commentsSlice";
+import usersReducer from "./features/users/usersSlice";
+import authReducer from "./features/auth/authSlice";
 
-declare global {
-    interface Window {
-        __REDUX_DEVTOOLS_EXTENSION__?: () => any;
-    }
-}
+export const store = configureStore({
+    reducer: {
+        posts: postsReducer,
+        comments: commentsReducer,
+        users: usersReducer,
+        auth: authReducer,
+    },
+});
 
-// Redux DevTools + thunk middleware
-const middleware = window.__REDUX_DEVTOOLS_EXTENSION__
-    ? compose(applyMiddleware(thunk), window.__REDUX_DEVTOOLS_EXTENSION__())
-    : applyMiddleware(thunk);
-
-const store = createStore(rootReducer, middleware);
-
-// Export RootState for TypeScript
-export type RootState = ReturnType<typeof rootReducer>;
-export default store;
+// Infer types
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;

@@ -6,10 +6,10 @@ import Credits from "./components/Credits";
 import Logo from "./components/Logo";
 import Input from "./components/Input";
 import backgroundImage from "../../assets/background.jpg";
-import sendCode from "../../actions/sendCode";
-import changePassword from "../../actions/changePassword";
+
 import configuration from "@/config/configuration";
 import { FaLock, FaUser } from "react-icons/fa";
+import { changePassword, sendCode } from "@/actions/auth";
 
 const  ForgetPassword =()=> {
     const { addToast } = useToasts();
@@ -60,7 +60,9 @@ const  ForgetPassword =()=> {
     const onChange = async (e) => {
         e.preventDefault();
         try {
-            await changePassword(email, authCode, password);
+            const { data } = await changePassword(email, authCode, password);
+            console.log(data);
+            
             navigate("/login", { replace: true });
             setSent(false);
             addToast("Password changed! You may now sign in.", {

@@ -1,8 +1,5 @@
 import { useEffect, useState } from "react";
-import { useGlobal } from "reactn";
 import { Link, useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
-import { useDispatch } from "react-redux";
 import { useToasts } from "react-toast-notifications";
 import Div100vh from "react-div-100vh";
 import { FaLock, FaUser, FaPencilAlt, FaEnvelope } from "react-icons/fa";
@@ -11,22 +8,18 @@ import Credits from "./components/Credits";
 import Logo from "./components/Logo";
 import Input from "./components/Input";
 
-import setAuthToken from "@/actions/setAuthToken";
-import initIO from "@/actions/initIO";
-import login from "@/actions/login";
-import register from "@/actions/register";
 import configuration from "@/config/configuration";
 import AuthNav from "./components/AuthNav";
 import backgroundImage from "../../assets/background.jpg";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { login, register, setAuthToken } from "@/actions/auth";
+import { setCredentials } from "@/features/auth/authSlice";
+import { useAppDispatch } from "@/hooks/useDispatch";
 
 function Login() {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const { addToast } = useToasts();
     const navigate = useNavigate();
-    const setToken = useGlobal("token")[1];
-    const setUser = useGlobal("user")[1];
-    const [entryPath, setEntryPath] = useGlobal("entryPath");
 
     // --- Login state ---
     const [email, setEmail] = useState("");
@@ -71,35 +64,32 @@ function Login() {
         e.preventDefault();
         try {
             const res = await login(email, password);
-            
+
+            // Save JWT in localStorage if "keep me logged in"
             if (keep) localStorage.setItem("token", res.data.token);
-            if (keep)
-                localStorage.setItem(
-                    "user",
-                    JSON.stringify(jwtDecode(res.data.token))
-                );
+            localStorage.setItem(
+                "user",
+                JSON.stringify(res.data.user) // or decode JWT if needed
+            );
+            dispatch(
+                setCredentials({ token: res.data.token, user: res.data.user })
+            );
+
+            setAuthToken(res.data.token); // set default header
+
+            addToast("Login successful!", { appearance: "success" });
             setLoginErrors({});
-            setAuthToken(res.data.token);
-            setUser(jwtDecode(res.data.token));
-            setToken(res.data.token);
-            dispatch(initIO(res.data.token));
-            navigate(["/login", "/"].includes(entryPath) ? "/" : entryPath, {
-                replace: true,
-            });
-            await setEntryPath(null);
-        } catch (e) {
-            let errors = {};
-            if (!e.response || typeof e.response.data !== "object")
-                errors.generic = "Could not connect to server.";
-            else errors = e.response.data;
-            setLoginErrors(errors);
+            navigate("/dashboard"); // redirect to dashboard or home page
+        } catch (err) {
+            setLoginErrors(err.response?.data || { general: "Login failed" });
+            addToast("Login failed!", { appearance: "error" });
         }
     };
 
     const onRegister = async (e) => {
         e.preventDefault();
         try {
-            await register({
+            const reg = await register({
                 username: registerUsername,
                 email: registerEmail,
                 firstName: registerFirstName,
@@ -108,19 +98,25 @@ function Login() {
                 password: registerPassword,
                 repeatPassword: registerRepeatPassword,
             });
+            
             const res = await login(registerEmail, registerPassword);
-            setRegisterErrors({});
+
             if (keep) localStorage.setItem("token", res.data.token);
+
+            localStorage.setItem("user", JSON.stringify(res.data.user));
+
+            dispatch(setCredentials({ token: res.data.token, user: res.data.user }));
             setAuthToken(res.data.token);
-            setUser(jwtDecode(res.data.token));
-            setToken(res.data.token);
-            dispatch(initIO(res.data.token));
-        } catch (e) {
-            let errors = {};
-            if (!e.response || typeof e.response.data !== "object")
-                errors.generic = "Could not connect to server.";
-            else errors = e.response.data;
-            setRegisterErrors(errors);
+
+            addToast("Registration successful!", { appearance: "success" });
+            setRegisterErrors({});
+            navigate("/dashboard");
+
+        } catch (err) {
+            setRegisterErrors(
+                err.response?.data || { general: "Registration failed" }
+            );
+            addToast("Registration failed!", { appearance: "error" });
         }
     };
 
@@ -156,8 +152,10 @@ function Login() {
                             <form
                                 onSubmit={onLogin}
                                 className="w-full space-y-4  transition-all duration-500"
-                            >
-                                {loginInfo}
+                            >   
+                                <p>
+                                    {loginInfo}
+                                </p>
 
                                 <Input
                                     icon={<FaUser />}
@@ -212,7 +210,9 @@ function Login() {
                                 onSubmit={onRegister}
                                 className="w-full space-y-4 transition-all duration-500"
                             >
-                                {registerInfo}
+                                <p className="flex flex-wrap">
+                                    {registerInfo}
+                                </p>
                                 <Input
                                     icon={<FaUser />}
                                     placeholder="Username"
