@@ -9,9 +9,14 @@ export const register = (data) => {
     return API.post("/api/auth/register", data);
 };
 
+export const myData = () => {
+    return API.get("api/auth/profile");
+};
+
 export const sendCode = (email) => {
     return API.post("api/auth/forgot-password", { email });
 };
+
 
 export const changePassword = (email, authCode, password) => {
     

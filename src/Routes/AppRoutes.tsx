@@ -12,17 +12,16 @@ import { useEffect, useState } from "react";
 import { setAuthToken } from "@/actions/auth";
 
 export const AppRoutes = () => {
-    const [token, setToken] = useState("")
+    const [token, setToken] = useState(null)
     
     useEffect(() => {
         const token = localStorage.getItem("token");
 
         if (!token) return;
-
         setAuthToken(token);
         setToken(token);
     }, []);
-
+    
     return (
         <Routes>
             <Route path="/" element={<Home />} />
@@ -30,10 +29,10 @@ export const AppRoutes = () => {
             <Route path="/contact" element={<Contact />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
-            <Route path="/login" element={token ? <Navigate to="/" /> : <Login />} />
-            <Route path="/forgot-password" element={token ? <Navigate to="/" /> : <ForgetPassword />} />
+            <Route path="/login" element={token !== null ? <Navigate to="/" /> : <Login />} />
+            <Route path="/forgot-password" element={token !== null ? <Navigate to="/" /> : <ForgetPassword />} />
 
-            <Route path="/*" element={!token ? <Navigate to="/login" /> : <PrivetRoutes />} />
+            <Route path="/*" element={<PrivetRoutes />} />
 
             <Route path="*" element={<NotFound />} />
         </Routes>

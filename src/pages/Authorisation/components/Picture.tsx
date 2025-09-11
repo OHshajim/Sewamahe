@@ -16,7 +16,7 @@ function Picture({
     size = 64,
 }: PictureProps) {
     const baseClasses =
-        "flex items-center justify-center rounded-full bg-blue-600 text-white font-bold overflow-hidden";
+        "flex items-center justify-center rounded-full bg-blue-500 text-white font-bold overflow-hidden";
 
     if (group) {
         if (picture) {

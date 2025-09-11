@@ -66,20 +66,15 @@ function Login() {
             const res = await login(email, password);
 
             // Save JWT in localStorage if "keep me logged in"
-            if (keep) localStorage.setItem("token", res.data.token);
-            localStorage.setItem(
-                "user",
-                JSON.stringify(res.data.user) // or decode JWT if needed
-            );
-            dispatch(
-                setCredentials({ token: res.data.token, user: res.data.user })
-            );
+            localStorage.setItem("token", res.data.token);
+            localStorage.setItem("user", JSON.stringify(res.data.user));
+            dispatch(setCredentials({ token: res.data.token, user: res.data.user }));
 
-            setAuthToken(res.data.token); // set default header
+            setAuthToken(res.data.token);
 
+            navigate("/dashboard");
             addToast("Login successful!", { appearance: "success" });
             setLoginErrors({});
-            navigate("/dashboard"); // redirect to dashboard or home page
         } catch (err) {
             setLoginErrors(err.response?.data || { general: "Login failed" });
             addToast("Login failed!", { appearance: "error" });
@@ -101,16 +96,15 @@ function Login() {
             
             const res = await login(registerEmail, registerPassword);
 
-            if (keep) localStorage.setItem("token", res.data.token);
-
+            localStorage.setItem("token", res.data.token);
             localStorage.setItem("user", JSON.stringify(res.data.user));
 
             dispatch(setCredentials({ token: res.data.token, user: res.data.user }));
             setAuthToken(res.data.token);
-
-            addToast("Registration successful!", { appearance: "success" });
             setRegisterErrors({});
             navigate("/dashboard");
+
+            addToast("Registration successful!", { appearance: "success" });
 
         } catch (err) {
             setRegisterErrors(
