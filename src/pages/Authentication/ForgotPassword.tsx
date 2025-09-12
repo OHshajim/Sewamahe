@@ -1,18 +1,15 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Div100vh from "react-div-100vh";
 import { Link, useNavigate } from "react-router-dom";
-import { useToasts } from "react-toast-notifications";
 import Credits from "./components/Credits";
 import Logo from "./components/Logo";
 import Input from "./components/Input";
 import backgroundImage from "../../assets/background.jpg";
-
-import configuration from "@/config/configuration";
 import { FaLock, FaUser } from "react-icons/fa";
 import { changePassword, sendCode } from "@/actions/auth";
+import { toast } from "sonner";
 
 const  ForgetPassword =()=> {
-    const { addToast } = useToasts();
     const navigate = useNavigate();
 
     const [email, setEmail] = useState("");
@@ -21,26 +18,6 @@ const  ForgetPassword =()=> {
     const [codeErrors, setCodeErrors] = useState({});
     const [changeErrors, setChangeErrors] = useState({});
     const [sent, setSent] = useState(false);
-
-    useEffect(() => {
-        if (window.self !== window.top) {
-            addToast(
-                <a
-                    href="#"
-                    onClick={(e) => {
-                        e.preventDefault();
-                        window.top.location.href = configuration.url;
-                    }}
-                >
-                    <b>
-                        Click here to remove the Envato frame or meetings will
-                        not work properly.
-                    </b>
-                </a>,
-                { appearance: "warning", autoDismiss: false }
-            );
-        }
-    }, []);
 
     const onCode = async (e) => {
         e.preventDefault();
@@ -65,10 +42,7 @@ const  ForgetPassword =()=> {
             
             navigate("/login", { replace: true });
             setSent(false);
-            addToast("Password changed! You may now sign in.", {
-                appearance: "success",
-                autoDismiss: true,
-            });
+            toast.success("Password changed! You may now sign in.");
             setChangeErrors({});
         } catch (e) {
             const errors =

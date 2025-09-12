@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useToasts } from "react-toast-notifications";
 import Div100vh from "react-div-100vh";
 import { FaLock, FaUser, FaPencilAlt, FaEnvelope } from "react-icons/fa";
 
@@ -8,17 +7,16 @@ import Credits from "./components/Credits";
 import Logo from "./components/Logo";
 import Input from "./components/Input";
 
-import configuration from "@/config/configuration";
 import AuthNav from "./components/AuthNav";
 import backgroundImage from "../../assets/background.jpg";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { login, register } from "@/actions/auth";
 import { setCredentials } from "@/features/auth/authSlice";
 import { useAppDispatch } from "@/hooks/useDispatch";
+import { toast } from "sonner";
 
 function Login() {
     const dispatch = useAppDispatch();
-    const { addToast } = useToasts();
     const navigate = useNavigate();
 
     // --- Login state ---
@@ -40,25 +38,6 @@ function Login() {
     // Toggle forms
     const [step, setStep] = useState(1);
 
-    useEffect(() => {
-        if (window.self !== window.top) {
-            addToast(
-                <a
-                    href="#"
-                    onClick={(e) => {
-                        e.preventDefault();
-                        window.top.location.href = configuration.url;
-                    }}
-                >
-                    <b>
-                        Click here to remove the Envato frame or meetings will
-                        not work properly.
-                    </b>
-                </a>,
-                { appearance: "warning", autoDismiss: false }
-            );
-        }
-    }, []);
 
     const onLogin = async (e) => {
         e.preventDefault();
@@ -71,11 +50,11 @@ function Login() {
             await dispatch(setCredentials(res.data.user));
 
             navigate("/dashboard");
-            addToast("Login successful!", { appearance: "success" });
+            toast.success("Login successful!");
             setLoginErrors({});
         } catch (err) {
             setLoginErrors(err.response?.data || { general: "Login failed" });
-            addToast("Login failed!", { appearance: "error" });
+            toast.error("Login failed!");
         }
     };
 
@@ -103,12 +82,12 @@ function Login() {
             setRegisterErrors({});
             navigate("/dashboard");
 
-            addToast("Registration successful!", { appearance: "success" });
+            toast.success("Registration successful!");
         } catch (err) {
             setRegisterErrors(
                 err.response?.data || { general: "Registration failed" }
             );
-            addToast("Registration failed!", { appearance: "error" });
+            toast.error("Registration failed!");
         }
     };
 

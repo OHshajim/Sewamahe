@@ -1,13 +1,12 @@
 import { useState } from "react";
 import axios from "axios";
-import { useToasts } from "react-toast-notifications";
 import configuration from "@/config/configuration";
 import Navbar from "@/components/Navbar";
+import { toast } from "sonner";
 
 
 export default function Contact() {
     const [form, setForm] = useState({ name: "", email: "", message: "" });
-    const { addToast } = useToasts();
 
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -25,17 +24,11 @@ export default function Contact() {
             );
             if (data.success) {
                 setForm({ name: "", email: "", message: "" });
-                addToast("Message sent successfully!", {
-                    appearance: "success",
-                    autoDismiss: true,
-                });
+                toast.success("Message sent successfully!");
             }
         } catch (err) {
             console.error(err);
-            addToast("Failed to send message.", {
-                appearance: "error",
-                autoDismiss: true,
-            });
+            toast.error("Failed to send message.");
         }
     };
 

@@ -1,10 +1,8 @@
-import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter } from "react-router-dom";
 import { ReactNode, useState } from "react";
-import { ToastProvider } from "react-toast-notifications";
 
 interface AppProvidersProps {
     children: ReactNode;
@@ -26,15 +24,12 @@ const AppProviders = ({ children }: AppProvidersProps) => {
 
     return (
         <QueryClientProvider client={queryClient}>
-            <ToastProvider>
-                <TooltipProvider>
-                    <Toaster />
-                    <Sonner />
-                    <BrowserRouter>
-                        {children}
-                    </BrowserRouter>
-                </TooltipProvider>
-            </ToastProvider>
+            <TooltipProvider>
+                <Sonner />
+                <BrowserRouter>
+                    {children}
+                </BrowserRouter>
+            </TooltipProvider>
         </QueryClientProvider>
     );
 };
