@@ -3,7 +3,7 @@ import { Route, Routes,useNavigate } from "react-router-dom";
 import NotFound from "@/pages/NotFound";
 import { DashBoard } from "@/pages/Authorisation/User/DashBoard";
 import { useEffect, useState } from "react";
-import Sidebar from "@/pages/Authorisation/components/Sidebar";
+import Sidebar from "@/pages/Authorisation/components/DashboardSidebar/Sidebar";
 import ChatArea from "@/pages/Authorisation/components/ChatArea";
 import DetailsPanel from "@/pages/Authorisation/components/DetailsPanel";
 
@@ -28,7 +28,7 @@ function PrivetRoutes() {
             <div className="flex-1 border-r">
                 <Routes>
                     <Route path="/dashboard" element={<DashBoard />} />
-                    <Route path="/dashboard/room/:id" element={<ChatArea />} />
+                    <Route path="/room/:id" element={<ChatArea />} />
                     <Route path="/*" element={<NotFound />} />
                 </Routes>
             </div>

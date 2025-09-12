@@ -1,19 +1,22 @@
-import { useState } from "react";
+import {  useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import DashboardNav from "./DashboardNav";
-import Picture from "./Picture";
-import { TableBody } from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import DashboardNav from "../DashboardNav";
+import Picture from "../Picture";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/hooks/useDispatch";
 import { logout } from "@/features/auth/authSlice";
+import Rooms from "./components/Rooms";
+import Favorites from "./components/Favorites";
+import Search from "./components/Search";
 
 const Sidebar = ({ className = "" }) => {
     const user = useAppSelector((state) => state.auth.user);
+
     const [tab, setTab] = useState<"rooms" | "search" | "favorites">("rooms");
     const [showSettings, setShowSettings] = useState(false);
+
     const navigate = useNavigate();
     const dispatch = useAppDispatch();
 
@@ -22,6 +25,11 @@ const Sidebar = ({ className = "" }) => {
         localStorage.removeItem("token")
         navigate("/");
     };
+    const tabs = [
+        {title:"Rooms",value:"rooms"},
+        {title:"Search",value:"search"},
+        {title:"Favorites",value:"favorites"},
+    ]
 
     return (
         <div className={`flex flex-col h-full ${className}`}>
@@ -72,32 +80,18 @@ const Sidebar = ({ className = "" }) => {
                         className="w-full"
                     >
                         <TabsList className="grid grid-cols-3 w-full">
-                            <TabsTrigger value="rooms">Rooms</TabsTrigger>
-                            <TabsTrigger value="search">Search</TabsTrigger>
-                            <TabsTrigger value="favorites">
-                                Favorites
-                            </TabsTrigger>
+                            {tabs.map(tab => <TabsTrigger key={tab.value} value={tab.value}>{tab.title}</TabsTrigger>)}
                         </TabsList>
-                        <TableBody></TableBody>
+                        <TabsContent value="rooms">
+                            <Rooms/>
+                        </TabsContent>
+                        <TabsContent value="search">
+                            <Search/>
+                        </TabsContent>
+                        <TabsContent value="favorites">
+                            <Favorites/>
+                        </TabsContent>
                     </Tabs>
-
-                    {/* User List */}
-                    <div className="flex-1 overflow-y-auto p-3 space-y-2">
-                        {[1, 2, 3].map((id) => (
-                            <div
-                                key={id}
-                                className="p-3 rounded-lg hover:bg-gray-200 cursor-pointer flex items-center gap-3"
-                            >
-                                <Avatar>
-                                    <AvatarImage
-                                        src={`https://i.pravatar.cc/150?u=${id}`}
-                                    />
-                                    <AvatarFallback>U{id}</AvatarFallback>
-                                </Avatar>
-                                <span>User {id}</span>
-                            </div>
-                        ))}
-                    </div>
                 </>
             )}
         </div>
