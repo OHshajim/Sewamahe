@@ -12,7 +12,7 @@ import configuration from "@/config/configuration";
 import AuthNav from "./components/AuthNav";
 import backgroundImage from "../../assets/background.jpg";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { login, register, setAuthToken } from "@/actions/auth";
+import { login, register } from "@/actions/auth";
 import { setCredentials } from "@/features/auth/authSlice";
 import { useAppDispatch } from "@/hooks/useDispatch";
 
@@ -65,12 +65,10 @@ function Login() {
         try {
             const res = await login(email, password);
 
-            // Save JWT in localStorage if "keep me logged in"
             localStorage.setItem("token", res.data.token);
-            localStorage.setItem("user", JSON.stringify(res.data.user));
-            dispatch(setCredentials({ token: res.data.token, user: res.data.user }));
 
-            setAuthToken(res.data.token);
+            // Set user in Redux
+            await dispatch(setCredentials(res.data.user));
 
             navigate("/dashboard");
             addToast("Login successful!", { appearance: "success" });
@@ -93,19 +91,19 @@ function Login() {
                 password: registerPassword,
                 repeatPassword: registerRepeatPassword,
             });
-            
+
             const res = await login(registerEmail, registerPassword);
 
+            // Store only token
             localStorage.setItem("token", res.data.token);
-            localStorage.setItem("user", JSON.stringify(res.data.user));
 
-            dispatch(setCredentials({ token: res.data.token, user: res.data.user }));
-            setAuthToken(res.data.token);
+            // User in Redux
+            dispatch(setCredentials(res.data.user));
+            
             setRegisterErrors({});
             navigate("/dashboard");
 
             addToast("Registration successful!", { appearance: "success" });
-
         } catch (err) {
             setRegisterErrors(
                 err.response?.data || { general: "Registration failed" }

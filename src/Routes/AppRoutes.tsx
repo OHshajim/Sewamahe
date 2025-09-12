@@ -9,16 +9,13 @@ import Login from "@/pages/Authentication/Login";
 import ForgetPassword from "@/pages/Authentication/ForgotPassword";
 import PrivetRoutes from "./PrivetRoutes";
 import { useEffect, useState } from "react";
-import { setAuthToken } from "@/actions/auth";
 
 export const AppRoutes = () => {
     const [token, setToken] = useState(null)
     
     useEffect(() => {
         const token = localStorage.getItem("token");
-
         if (!token) return;
-        setAuthToken(token);
         setToken(token);
     }, []);
     

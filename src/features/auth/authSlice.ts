@@ -1,12 +1,34 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
+// Your full User type
+export interface User {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    username: string;
+    phone: string;
+    tagLine: string;
+    consultantStatus: string;
+    createdAt: string;
+    lastOnline: string;
+    level: string;
+    type: string;
+    price: number;
+    balance: {
+        minute: number;
+        amount: number;
+    };
+    favorites: string[];
+    history: string[];
+    __v: number;
+}
+
 interface AuthState {
-    token: string | null;
-    user: any | null;
+    user: User | null;
 }
 
 const initialState: AuthState = {
-    token: localStorage.getItem("token"), // initial load from storage
     user: localStorage.getItem("user")
         ? JSON.parse(localStorage.getItem("user")!)
         : null,
@@ -16,19 +38,12 @@ const authSlice = createSlice({
     name: "auth",
     initialState,
     reducers: {
-        setCredentials: (
-            state,
-            action: PayloadAction<{ token: string; user: any }>
-        ) => {
-            state.token = action.payload.token;
-            state.user = action.payload.user;
-            localStorage.setItem("token", action.payload.token);
-            localStorage.setItem("user", JSON.stringify(action.payload.user));
+        setCredentials: (state, action: PayloadAction<User>) => {
+            state.user = action.payload;
+            localStorage.setItem("user", JSON.stringify(action.payload));
         },
         logout: (state) => {
-            state.token = null;
             state.user = null;
-            localStorage.removeItem("token");
             localStorage.removeItem("user");
         },
     },

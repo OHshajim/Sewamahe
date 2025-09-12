@@ -1,13 +1,12 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { FiMenu, FiX } from "react-icons/fi";
-import { useAppSelector } from "@/hooks/useDispatch";
 
 const Navbar = () => {
     const location = useLocation();
     const [isOpen, setIsOpen] = useState(false);
-    const user = useAppSelector((state) => state.auth.user);
-
+    const token = localStorage.getItem("token")
+    
     const isActive = (path: string) => location.pathname === path;
 
     const links = [
@@ -16,9 +15,9 @@ const Navbar = () => {
         { name: "Privacy Policy", path: "/privacy" },
         { name: "Terms Of Use", path: "/terms" },
         { name: "Contact Us", path: "/contact" },
-        user ?
-        { name: "Dashboard", path: "/dashboard" }:
-        { name: "Login", path: "/login" }
+        token
+            ? { name: "Dashboard", path: "/dashboard" }
+            : { name: "Login", path: "/login" },
     ];
 
     return (

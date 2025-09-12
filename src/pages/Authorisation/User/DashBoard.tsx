@@ -1,26 +1,31 @@
-import { useAppSelector } from "@/hooks/useDispatch";
+import { useAppDispatch, useAppSelector } from "@/hooks/useDispatch";
 import { useEffect, useState } from "react";
 import Picture from "../components/Picture";
 import { myData } from "@/actions/auth";
+import { setCredentials } from "@/features/auth/authSlice";
 
 export const DashBoard = () => {
     const user = useAppSelector((state) => state.auth.user);
-    const [info, setInfo] = useState({firstName:"", lastName:"" });
+    const dispatch = useAppDispatch();
 
     useEffect(() => {
         const fetchData = async () => {
             const result = await myData();
-            setInfo(result.data);
+            if (result?.data) {
+                dispatch(setCredentials(result.data));
+            }
         };
         fetchData();
-    }, []);
-    console.log(info);
+    }, [dispatch]);
+
     
     return (
         <div className="flex flex-col justify-center items-center  min-h-screen bg-gray-100">
             <div className="">
-                <h3 className="text-3xl text-center font-bold py-10 text-gray-600">{info?.firstName}  {info?.lastName}</h3>
-                <Picture user={info} size={300} />
+                <h3 className="text-3xl text-center font-bold py-10 text-gray-600">
+                    {user?.firstName} {user?.lastName}
+                </h3>
+                <Picture user={user ?? {}} size={250} />
             </div>
             <div className=" my-20 max-w-md mx-auto text-center">
                 <p className="text-gray-700">

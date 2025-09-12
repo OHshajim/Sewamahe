@@ -5,7 +5,7 @@ const Payment=()=> {
                 Payments &amp; Wallet Features
             </h2>
 
-            <div className="max-w-2xl mx-auto text-lg text-gray-700">
+            <div className="max-w-2xl mx-auto text-sm sm:text-lg  text-gray-700">
                 <p>
                     Experience smooth, transparent payments with{" "}
                     <strong className="font-semibold text-gray-900">

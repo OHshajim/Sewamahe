@@ -8,15 +8,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Picture from "./Picture";
 import { Ellipsis, Settings } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
-import { setAuthToken } from "@/actions/auth";
-import { useAppDispatch } from "@/hooks/useDispatch";
-import { setCredentials } from "@/features/auth/authSlice";
+import { Link } from "react-router-dom";
 
-const DashboardNav = () => {
-    const dispatch = useAppDispatch();
-    const navigate = useNavigate()
 
+const DashboardNav = ({ setShowSettings, showSettings, Logout, user }) => {
     const links = [
         { name: "Home", path: "/" },
         { name: "About Us", path: "/about" },
@@ -24,24 +19,15 @@ const DashboardNav = () => {
         { name: "Terms Of Use", path: "/terms" },
         { name: "Contact Us", path: "/contact" },
     ];
-    
-
-    const Logout = () => {
-        localStorage.removeItem("token")
-        localStorage.removeItem("user")
-        dispatch(setCredentials({ token: null, user: null }));
-        setAuthToken(null)
-        navigate("/")
-        return;
-    }
 
     return (
-        <div className="px-4 py-2 flex justify-between items-center h-20 max-w-xs w-full shadow-lg">
-            <Picture size={50} />
+        <div className="px-4 py-2 flex justify-between items-center h-20 w-full shadow-md">
+            <Picture size={50} user={user} />
             <div className="flex gap-2">
                 {/* Settings Button */}
                 <Button
                     variant="ghost"
+                    onClick={() => setShowSettings(!showSettings)}
                     className="hover:bg-transparent text-black hover:text-primary"
                 >
                     <Settings className="scale-150" />
