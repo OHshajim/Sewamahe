@@ -1,4 +1,4 @@
-import {  useState } from "react";
+import {  useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -10,10 +10,12 @@ import { logout } from "@/features/auth/authSlice";
 import Rooms from "./components/Rooms";
 import Favorites from "./components/Favorites";
 import Search from "./components/Search";
+import { fetchAllUsers } from "@/actions/user";
 
 const Sidebar = ({ className = "" }) => {
     const user = useAppSelector((state) => state.auth.user);
 
+    const [users, setUsers] = useState([]);
     const [tab, setTab] = useState<"rooms" | "search" | "favorites">("rooms");
     const [showSettings, setShowSettings] = useState(false);
 
@@ -25,12 +27,20 @@ const Sidebar = ({ className = "" }) => {
         localStorage.removeItem("token")
         navigate("/");
     };
+
+    useEffect(() => {
+        const getUsers = async () => {
+            const res = await fetchAllUsers();
+            setUsers(res);
+        };
+        getUsers();
+    }, []);
+
     const tabs = [
         {title:"Rooms",value:"rooms"},
         {title:"Search",value:"search"},
         {title:"Favorites",value:"favorites"},
     ]
-
     return (
         <div className={`flex flex-col h-full ${className}`}>
             {/* Top Section - Profile + Settings */}
@@ -86,10 +96,10 @@ const Sidebar = ({ className = "" }) => {
                             <Rooms/>
                         </TabsContent>
                         <TabsContent value="search">
-                            <Search/>
+                            <Search users={users}/>
                         </TabsContent>
                         <TabsContent value="favorites">
-                            <Favorites/>
+                            <Favorites users={users}/>
                         </TabsContent>
                     </Tabs>
                 </>

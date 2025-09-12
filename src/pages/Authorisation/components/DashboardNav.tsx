@@ -22,7 +22,9 @@ const DashboardNav = ({ setShowSettings, showSettings, Logout, user }) => {
 
     return (
         <div className="px-4 py-2 flex justify-between items-center h-20 w-full shadow-md">
-            <Picture size={50} user={user} />
+            <Link to={"/dashboard"}>
+                <Picture size={50} user={user} />
+            </Link>
             <div className="flex gap-2">
                 {/* Settings Button */}
                 <Button
