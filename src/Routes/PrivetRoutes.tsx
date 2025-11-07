@@ -1,41 +1,41 @@
-import Div100vh from "react-div-100vh";
 import { Route, Routes,useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useAppSelector } from "@/hooks/useDispatch";
+import { DashBoard } from "@/pages/DashBoard";
+import Sidebar from "@/pages/DashboardSidebar/Sidebar";
+import DetailsPanel from "@/pages/DashboardSidebar/DetailsPanel";
 import NotFound from "@/pages/NotFound";
-import { DashBoard } from "@/pages/Authorisation/User/DashBoard";
-import { useEffect, useState } from "react";
-import Sidebar from "@/pages/Authorisation/components/DashboardSidebar/Sidebar";
-import ChatArea from "@/pages/Authorisation/components/ChatArea";
-import DetailsPanel from "@/pages/Authorisation/components/DetailsPanel";
+import Conversation from "@/pages/Conversation/Conversation";
+import Call from "@/pages/Call";
 
 function PrivetRoutes() {
     const navigate = useNavigate()
-    const [loading, setLoading] = useState(true)
-    
-    useEffect(()=>{
-        const token = localStorage.getItem("token");
-        setLoading(false)
-        if(!token && !loading){
-            navigate("/login")
+    const location = window.location.pathname;
+    const user = useAppSelector((state) => state.auth.user);
+
+    useEffect(() => {
+        if (!user) {
+            navigate("/login");
         }
-    },[])
+    }, [user]);
 
     return (
-        <Div100vh className="flex">
-            {/* LEFT PANEL - Sidebar */}
-            <Sidebar className="max-w-sm w-full border-r" />
+        <div className="flex overflow-hidden h-screen">
+            <Sidebar className="max-w-[360px] w-full border-r max-md:hidden" />
 
-            {/* MIDDLE PANEL - Chat area */}
             <div className="flex-1 border-r">
                 <Routes>
                     <Route path="/dashboard" element={<DashBoard />} />
-                    <Route path="/room/:id" element={<ChatArea />} />
+                    <Route path="/room/:id" element={<Conversation />} />
+                    <Route path="/room/:id/info" element={<DetailsPanel />} />
+                    <Route path="/meeting/:roomId/:type" element={<Call />} />
                     <Route path="/*" element={<NotFound />} />
                 </Routes>
             </div>
-
-            {/* RIGHT PANEL - Branding / User Details */}
-            <DetailsPanel className="hidden xl:flex max-w-sm w-full" />
-        </Div100vh>
+            {location.includes("/info") || (
+                <DetailsPanel className="hidden xl:flex max-w-72 w-full" />
+            )}
+        </div>
     );
 }
 

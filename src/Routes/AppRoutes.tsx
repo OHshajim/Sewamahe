@@ -8,17 +8,19 @@ import NotFound from "../pages/NotFound";
 import Login from "@/pages/Authentication/Login";
 import ForgetPassword from "@/pages/Authentication/ForgotPassword";
 import PrivetRoutes from "./PrivetRoutes";
-import { useEffect, useState } from "react";
+import { useAppSelector } from "@/hooks/useDispatch";
+import { useEffect } from "react";
+import initIO from "@/actions/initIO";
 
 export const AppRoutes = () => {
-    const [token, setToken] = useState(null)
-    
+    const user = useAppSelector((state) => state.auth.user);
+    const token = localStorage.getItem("token")    
+      
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (!token) return;
-        setToken(token);
-    }, []);
-    
+        if (!token || !user) return;
+        initIO(token);
+    }, [token, user]);
+
     return (
         <Routes>
             <Route path="/" element={<Home />} />
@@ -26,10 +28,13 @@ export const AppRoutes = () => {
             <Route path="/contact" element={<Contact />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
-            <Route path="/login" element={token !== null ? <Navigate to="/" /> : <Login />} />
-            <Route path="/forgot-password" element={token !== null ? <Navigate to="/" /> : <ForgetPassword />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/forgot-password" element={<ForgetPassword />} />
 
-            <Route path="/*" element={<PrivetRoutes />} />
+            <Route
+                path="/*"
+                element={!user ? <Navigate to="/" /> : <PrivetRoutes />}
+            />
 
             <Route path="*" element={<NotFound />} />
         </Routes>

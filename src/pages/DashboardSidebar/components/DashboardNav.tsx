@@ -6,12 +6,12 @@ import {
     DropdownMenuTrigger,
     DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import Picture from "./Picture";
+import Picture from "../../../components/Picture";
 import { Ellipsis, Settings } from "lucide-react";
 import { Link } from "react-router-dom";
 
 
-const DashboardNav = ({ setShowSettings, showSettings, Logout, user }) => {
+const TopBar = ({ setShowSettings, showSettings, Logout, user }) => {
     const links = [
         { name: "Home", path: "/" },
         { name: "About Us", path: "/about" },
@@ -21,39 +21,45 @@ const DashboardNav = ({ setShowSettings, showSettings, Logout, user }) => {
     ];
 
     return (
-        <div className="px-4 py-2 flex justify-between items-center h-20 w-full shadow-md">
-            <Link to={"/dashboard"}>
-                <Picture size={50} user={user} />
+        <div className="px-4 py-2 flex justify-between items-center h-14 w-full shadow-md">
+            <Link to={"/dashboard"} className="relative">
+                <>
+                    <Picture size={40} user={user} />
+                    <div className="w-3.5 h-3.5 rounded-full  bg-green-500 absolute -right-0.5 bottom-0 border-2 border-white" />
+                </>
             </Link>
-            <div className="flex gap-2">
+            <div className="flex">
                 {/* Settings Button */}
                 <Button
                     variant="ghost"
                     onClick={() => setShowSettings(!showSettings)}
-                    className="hover:bg-transparent text-black hover:text-primary"
+                    className=""
                 >
-                    <Settings className="scale-150" />
+                    <Settings
+                        className={`scale-110 ${
+                            showSettings ? "text-[#da7d02]" : ""
+                        }`}
+                    />
                 </Button>
 
                 {/* Dropdown Menu */}
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button
-                            variant="ghost"
-                            className="hover:bg-transparent text-black hover:text-primary"
-                        >
-                            <Ellipsis className="scale-150" />
+                        <Button variant="ghost" className="p-0">
+                            <Ellipsis className="scale-110" />
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48">
+                    <DropdownMenuContent align="end" className="w-48 ">
                         {links.map((l) => (
                             <Link key={l.name} to={l.path}>
-                                <DropdownMenuItem>{l.name}</DropdownMenuItem>
+                                <DropdownMenuItem className="text-xs">
+                                    {l.name}
+                                </DropdownMenuItem>
                             </Link>
                         ))}
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
-                            className="text-red-600"
+                            className="text-red-600 text-xs"
                             onClick={() => Logout()}
                         >
                             Logout
@@ -65,4 +71,4 @@ const DashboardNav = ({ setShowSettings, showSettings, Logout, user }) => {
     );
 };
 
-export default DashboardNav;
+export default TopBar;

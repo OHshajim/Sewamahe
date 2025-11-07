@@ -16,30 +16,30 @@ function Picture({
     size = 64,
 }: PictureProps) {
     const baseClasses =
-        "flex items-center justify-center rounded-full bg-blue-500 text-white font-bold overflow-hidden";
+        "flex items-center justify-center rounded-full bg-gray-600 text-white overflow-hidden";
 
-    if (group) {
-        if (picture) {
-            return (
-                <img
-                    src={`${configuration.url || ""}/api/images/${
-                        picture.shieldedID
-                    }/256`}
-                    alt="Group"
-                    className="rounded-full object-cover"
-                    style={{ width: size, height: size }}
-                />
-            );
-        }
-        return (
-            <div
-                className={baseClasses}
-                style={{ width: size, height: size, fontSize: size / 2 }}
-            >
-                {title.substr(0, 1).toUpperCase()}
-            </div>
-        );
-    }
+    // if (group) {
+    //     if (picture) {
+    //         return (
+    //             <img
+    //                 src={`${configuration.url || ""}/api/images/${
+    //                     picture.shieldedID
+    //                 }/256`}
+    //                 alt="Group"
+    //                 className="rounded-full object-cover"
+    //                 style={{ width: size, height: size }}
+    //             />
+    //         );
+    //     }
+    //     return (
+    //         <div
+    //             className={baseClasses}
+    //             style={{ width: size, height: size, fontSize: size / 2 }}
+    //         >
+    //             {title.substr(0, 1).toUpperCase()}
+    //         </div>
+    //     );
+    // }
 
     const firstName = user.firstName || "User";
     const lastName = user.lastName || "Name";
@@ -47,9 +47,7 @@ function Picture({
     if (user.picture) {
         return (
             <img
-                src={`${configuration.url || ""}/api/images/${
-                    user.picture.shieldedID
-                }/256`}
+                src={`${configuration.url || ""}/api/image/${user.picture.shieldedID}`}
                 alt={`${firstName} ${lastName}`}
                 className="rounded-full object-cover"
                 style={{ width: size, height: size }}

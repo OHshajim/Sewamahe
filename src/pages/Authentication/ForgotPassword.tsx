@@ -6,7 +6,7 @@ import Logo from "./components/Logo";
 import Input from "./components/Input";
 import backgroundImage from "../../assets/background.jpg";
 import { FaLock, FaUser } from "react-icons/fa";
-import { changePassword, sendCode } from "@/actions/auth";
+import { forgetPassword, sendCode } from "@/actions/auth";
 import { toast } from "sonner";
 
 const  ForgetPassword =()=> {
@@ -37,7 +37,7 @@ const  ForgetPassword =()=> {
     const onChange = async (e) => {
         e.preventDefault();
         try {
-            const { data } = await changePassword(email, authCode, password);
+            const { data } = await forgetPassword(email, authCode, password);
             console.log(data);
             
             navigate("/login", { replace: true });

@@ -1,124 +1,87 @@
-// features/chat/chatSlice.ts
-import API from "@/lib/axios";
-import { createSlice, PayloadAction, createAsyncThunk } from "@reduxjs/toolkit";
-
-export interface Message {
-  _id: string;
-  conversationId: string;
-  sender: any;
-  content: string;
-  type: string;
-  createdAt: string;
-  seenBy: string[];
-}
-
-export interface Conversation {
-  _id: string;
-  participants: any[];
-  lastMessage: Message | null;
-  updatedAt: string;
-}
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface ChatState {
-  conversations: Conversation[];
-  selectedConversationId: string | null;
-  messages: { [conversationId: string]: Message[] };
-  loading: boolean;
-  error: string | null;
+    room: any | null;
+    messages: any[];
+    rooms: any[];
+    onlineUsers: any[];
+    favorites: any[];
+    refreshMeetings: number | null;
+    typing: any;
 }
 
 const initialState: ChatState = {
-  conversations: [],
-  selectedConversationId: null,
-  messages: {},
-  loading: false,
-  error: null,
+    room: null,
+    messages: [],
+    rooms: [],
+    onlineUsers: [],
+    favorites: [],
+    refreshMeetings: null,
+    typing: {},
 };
 
-// Fetch all conversations
-export const fetchConversations = createAsyncThunk(
-  "chat/fetchConversations",
-  async (_, { rejectWithValue }) => {
-    try {
-      const res = await API.get("/api/conversations");
-      return res.data;
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data.message || err.message);
-    }
-  }
-);
-
-// Fetch messages for a conversation
-export const fetchMessages = createAsyncThunk(
-  "chat/fetchMessages",
-  async ({ conversationId, skip = 0, limit = 20 }: { conversationId: string; skip?: number; limit?: number }, { rejectWithValue }) => {
-    try {
-      const res = await API.get(`/api/messages/${conversationId}?skip=${skip}&limit=${limit}`);
-      return { conversationId, messages: res.data };
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data.message || err.message);
-    }
-  }
-);
-
-// Send message
-export const sendMessage = createAsyncThunk(
-  "chat/sendMessage",
-  async ({ conversationId, content, type = "text" }: { conversationId: string; content: string; type?: string }, { rejectWithValue }) => {
-    try {
-      const res = await API.post("/api/messages", { conversationId, content, type });
-      return res.data;
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data.message || err.message);
-    }
-  }
-);
-
 const chatSlice = createSlice({
-  name: "chat",
-  initialState,
-  reducers: {
-    setSelectedConversation: (state, action: PayloadAction<string>) => {
-      state.selectedConversationId = action.payload;
-    },
-    addMessageToConversation: (state, action: PayloadAction<Message>) => {
-      const convId = action.payload.conversationId;
-      if (!state.messages[convId]) state.messages[convId] = [];
-      state.messages[convId].push(action.payload);
-    },
-  },
-  extraReducers: (builder) => {
-    builder
-      .addCase(fetchConversations.pending, (state) => { state.loading = true; })
-      .addCase(fetchConversations.fulfilled, (state, action) => {
-        state.loading = false;
-        state.conversations = action.payload;
-      })
-      .addCase(fetchConversations.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      })
+    name: "chat",
+    initialState,
+    reducers: {
+        setRoom: (state, action: PayloadAction<any>) => {
+            state.room = action.payload;
+        },
+        setMessages: (state, action: PayloadAction<any[]>) => {
+            state.messages = action.payload;
+        },
+        addMessage: (state, action: PayloadAction<any>) => {
+            state.messages.push(action.payload);
+        },
+        moreMessages: (state, action: PayloadAction<any[]>) => {
+            state.messages = [...action.payload, ...state.messages];
+        },
+        setRooms: (state, action: PayloadAction<any[]>) => {
+            state.rooms = action.payload;
+        },
+        setOnlineUsers: (state, action: PayloadAction<any[]>) => {
+            state.onlineUsers = action.payload;
+        },
+        setFavorites: (state, action: PayloadAction<any[]>) => {
+            state.favorites = action.payload;
+        },
+        setRefreshMeetings: (state, action: PayloadAction<number>) => {
+            state.refreshMeetings = action.payload;
+        },
+        setTyping: (
+            state,
+            action: PayloadAction<{
+                room: string;
+                userId: string;
+                isTyping: boolean;
+            }>
+        ) => {
+            const { room, userId, isTyping } = action.payload;
+            if (!state.typing[room]) state.typing[room] = [];
 
-      .addCase(fetchMessages.pending, (state) => { state.loading = true; })
-      .addCase(fetchMessages.fulfilled, (state, action) => {
-        state.loading = false;
-        state.messages[action.payload.conversationId] = action.payload.messages;
-      })
-      .addCase(fetchMessages.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string;
-      })
-
-      .addCase(sendMessage.fulfilled, (state, action) => {
-        const convId = action.payload.conversationId;
-        if (!state.messages[convId]) state.messages[convId] = [];
-        state.messages[convId].push(action.payload);
-        // Update lastMessage in conversation list
-        const convIndex = state.conversations.findIndex(c => c._id === convId);
-        if (convIndex >= 0) state.conversations[convIndex].lastMessage = action.payload;
-      });
-  }
+            if (isTyping) {
+                if (!state.typing[room].includes(userId)) {
+                    state.typing[room].push(userId);
+                }
+            } else {
+                state.typing[room] = state.typing[room].filter(
+                    (id) => id !== userId
+                );
+            }
+        },
+    },
 });
 
-export const { setSelectedConversation, addMessageToConversation } = chatSlice.actions;
+export const {
+    setRoom,
+    setMessages,
+    addMessage,
+    moreMessages,
+    setRooms,
+    setOnlineUsers,
+    setFavorites,
+    setRefreshMeetings,
+    setTyping,
+} = chatSlice.actions;
+
 export default chatSlice.reducer;

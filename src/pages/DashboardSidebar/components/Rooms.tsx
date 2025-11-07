@@ -1,32 +1,15 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { fetchConversations, fetchMessages, setSelectedConversation } from "@/features/chat/chatSlice";
 import { useAppDispatch, useAppSelector } from "@/hooks/useDispatch";
-import { Conversation } from "@/types/Conversation";
 import { useEffect } from "react";
 
 const Rooms = () => {
-        const conversations: Conversation[] = useAppSelector(
-            (state) => state.chat.conversations
-        );
-    
-        const dispatch = useAppDispatch();
-
-          useEffect(() => {
-              dispatch(fetchConversations());
-          }, []);
-    
-          const selectConversation = (conversationId: string) => {
-              dispatch(setSelectedConversation(conversationId));
-              dispatch(fetchMessages({ conversationId }));
-          };
-
+    const dispatch = useAppDispatch();
     return (
         <div>
             <div className="flex-1 overflow-y-auto p-3 space-y-2">
-                {conversations.map((c) => (
+                {[].map((c) => (
                     <div
                         key={c._id}
-                        onClick={() => selectConversation(c._id)}
                         className="flex items-center gap-2 p-2 rounded hover:bg-gray-200 cursor-pointer"
                     >
                         {c.participants.map((u) => (

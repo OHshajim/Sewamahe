@@ -1,0 +1,60 @@
+import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
+import { useAppDispatch } from "@/hooks/useDispatch";
+import { setMessages, setRoom, addMessage } from "@/features/chat/chatSlice";
+import { getRoom } from "@/actions/Rooms";
+import Content from "./components/Content/Content";
+import Loader from "@/components/Loader";
+import SendBar from "./components/SendBar";
+import { RoomNav } from "./components/Topbar";
+import { getSocket } from "@/lib/socket";
+import { store } from "@/store";
+
+const Conversation = () => {
+    const [loading, setLoading] = useState(true);
+    const { id } = useParams();
+    const dispatch = useAppDispatch();
+    const socket = getSocket();
+
+    useEffect(() => {
+        setLoading(true);
+
+        getRoom(id)
+            .then((res) => {
+                dispatch(setRoom(res.room));
+                dispatch(setMessages(res.room.messages));
+                setLoading(false);
+            })
+            .catch(() => {
+                dispatch(setRoom(null));
+                dispatch(setMessages([]));
+                setLoading(false);
+            });
+    }, [id, dispatch]);
+
+    useEffect(() => {
+        if (!socket) return;
+        const handleMessage = (data) => {
+            const currentRoom = store.getState().chat.room;
+            if (currentRoom && currentRoom._id === data.room._id) {
+                dispatch(addMessage(data.message));
+            }
+        };
+        socket.on("message-in", handleMessage);
+        return () => {
+            socket.off("message-in", handleMessage);
+        };
+    }, [socket, dispatch]);
+
+    return (
+        <div className="flex flex-col h-full bg-slate-100">
+            <RoomNav />
+            <div className="flex-1 overflow-y-auto space-y-2 my-5">
+                {loading ? <Loader className="w-16 h-16" /> : <Content />}
+            </div>
+            <SendBar />
+        </div>
+    );
+};
+
+export default Conversation;
