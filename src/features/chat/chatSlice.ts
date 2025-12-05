@@ -3,6 +3,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 interface ChatState {
     room: any | null;
     messages: any[];
+    unreadMessages: any[];
     rooms: any[];
     onlineUsers: any[];
     favorites: any[];
@@ -13,6 +14,7 @@ interface ChatState {
 const initialState: ChatState = {
     room: null,
     messages: [],
+    unreadMessages: [],
     rooms: [],
     onlineUsers: [],
     favorites: [],
@@ -32,6 +34,9 @@ const chatSlice = createSlice({
         },
         addMessage: (state, action: PayloadAction<any>) => {
             state.messages.push(action.payload);
+        },
+        addUnreadMessage: (state, action: PayloadAction<any>) => {
+            state.unreadMessages.push(action.payload);
         },
         moreMessages: (state, action: PayloadAction<any[]>) => {
             state.messages = [...action.payload, ...state.messages];
@@ -75,6 +80,7 @@ const chatSlice = createSlice({
 export const {
     setRoom,
     setMessages,
+    addUnreadMessage,
     addMessage,
     moreMessages,
     setRooms,

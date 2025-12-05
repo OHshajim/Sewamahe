@@ -15,6 +15,22 @@ import initIO from "@/actions/initIO";
 export const AppRoutes = () => {
     const user = useAppSelector((state) => state.auth.user);
     const token = localStorage.getItem("token")    
+    // useEffect(() => {
+    //     if (!io || !user || !token) return;
+    //     let focusCount = 0;
+    //     const interval = setInterval(() => {
+    //         if (!document.hasFocus()) {
+    //             focusCount++;
+    //             if (focusCount === 10) {
+    //                 io.emit("status", { status: "away" });
+    //             }
+    //         } else if (focusCount !== 0) {
+    //             focusCount = 0;
+    //             io.emit("status", { status: "online" });
+    //         }
+    //     }, 1000);
+    //     return () => clearInterval(interval);
+    // }, [io, token]);
       
     useEffect(() => {
         if (!token || !user) return;

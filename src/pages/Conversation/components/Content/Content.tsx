@@ -1,23 +1,26 @@
-import { useState, useRef, useEffect } from "react";
-import { useDispatch } from "react-redux";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { useState, useRef, useEffect, useCallback } from "react";
 import Picture from "../../../../components/Picture";
 import { useAppDispatch, useAppSelector } from "@/hooks/useDispatch";
 import Message from "./components/Message";
-import { moreMessages, setTyping } from "@/features/chat/chatSlice";
+import { moreMessages } from "@/features/chat/chatSlice";
 import configuration from "@/config/configuration";
 import Loader from "@/components/Loader";
+import { getMoreMessages } from "@/actions/message";
+import { Lightbox } from "react-modal-image";
 
 export default function Content() {
     const dispatch = useAppDispatch();
     const user = useAppSelector((state) => state.auth.user);
     const messages = useAppSelector((state) => state.chat.messages);
     const room = useAppSelector((state) => state.chat.room);
-    const typing = useAppSelector((state) => state.chat.typing[room?._id] || []);
+    const typing = useAppSelector(
+        (state) => state.chat.typing[room?._id] || []
+    );
     const chatRef = useRef<HTMLDivElement>(null);
     const [loading, setLoading] = useState(false);
-    const [openImage, setOpenImage] = useState<string | null>(null);
+    const [openImage, setOpenImage] = useState(null);
+    const [isAtBottom, setIsAtBottom] = useState(true);
+    const prevMessagesLength = useRef(messages.length);
 
     // Identify the other user (if not group chat)
     let other = { firstName: "A", lastName: "A" };
@@ -27,86 +30,152 @@ export default function Content() {
         });
     }
 
+    // Check if user is at bottom of chat
+    const checkIfAtBottom = useCallback(() => {
+        if (!chatRef.current) return true;
+        const { scrollTop, scrollHeight, clientHeight } = chatRef.current;
+        const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+        return distanceFromBottom <= 100;
+    }, []);
+
     // Infinite scroll for more messages
-    const onScroll = async () => {
+    const onScroll = useCallback(async () => {
         const chat = chatRef.current;
         if (!chat) return;
+
+        // Update whether user is at bottom
+        setIsAtBottom(checkIfAtBottom());
+
+        // Load more messages when at top
         if (chat.scrollTop === 0 && !loading) {
             setLoading(true);
             try {
-                // const res = await getMoreMessages({
-                //     roomID: room._id,
-                //     firstMessageID: messages[0]?._id,
-                // });
-                // dispatch(moreMessages(res.messages));
+                const { data } = await getMoreMessages({
+                    roomID: room._id,
+                    firstMessageID: messages[0]?._id,
+                });
+                const scrollHeightBefore = chat.scrollHeight;
+                dispatch(moreMessages(data.messages));
+                setTimeout(() => {
+                    if (chatRef.current) {
+                        chatRef.current.scrollTop =
+                            chatRef.current.scrollHeight - scrollHeightBefore;
+                    }
+                }, 0);
             } catch (err) {
                 console.error("Error loading more messages", err);
             } finally {
                 setLoading(false);
             }
         }
-    };
+    }, [loading, messages, room?._id, dispatch, checkIfAtBottom]);
 
-    // Scroll to bottom when messages change
+    // Handle new messages - auto scroll to bottom only if user is already at bottom
     useEffect(() => {
-        const chat = chatRef.current;
-        if (chat) chat.scrollTop = chat.scrollHeight;
-    }, [messages.length, typing]);
-    
+        if (!chatRef.current || messages.length === 0) return;
+
+        const isNewMessageAdded = messages.length > prevMessagesLength.current;
+
+        if (isNewMessageAdded && isAtBottom) {
+            setTimeout(() => {
+                if (chatRef.current) {
+                    chatRef.current.scrollTo({
+                        top: chatRef.current.scrollHeight,
+                        behavior: "smooth",
+                    });
+                }
+            }, 10);
+        }
+
+        prevMessagesLength.current = messages.length;
+    }, [messages.length, isAtBottom]);
+
+    // Scroll to bottom on initial load
+    useEffect(() => {
+        if (chatRef.current && messages.length > 0) {
+            setTimeout(() => {
+                if (chatRef.current) {
+                    chatRef.current.scrollTop = chatRef.current.scrollHeight;
+                    setIsAtBottom(true);
+                }
+            }, 50);
+        }
+    }, [room?._id]);
+
+    // Handle typing indicator - scroll to bottom if at bottom
+    useEffect(() => {
+        if (typing.length > 0 && isAtBottom && chatRef.current) {
+            setTimeout(() => {
+                if (chatRef.current) {
+                    chatRef.current.scrollTo({
+                        top: chatRef.current.scrollHeight,
+                        behavior: "smooth",
+                    });
+                }
+            }, 50);
+        }
+    }, [typing.length, isAtBottom]);
+
     return (
-        <div className="flex flex-col h-full ">
-            <ScrollArea
-                className="flex-1 h-full"
-                onScrollCapture={onScroll}
-                ref={chatRef}
-            >
-                <div className="flex flex-col max-w-4xl mx-auto w-full px-4">
-                    {/* Lightbox Dialog */}
-                    <Dialog
-                        open={!!openImage}
-                        onOpenChange={() => setOpenImage(null)}
-                    >
-                        <DialogContent className="max-h-[70%] p-0 overflow-hidden">
-                            <DialogTitle></DialogTitle>
-                            <img
-                                src={`${configuration.url || ""}/api/image/${
-                                    openImage?.content
-                                }`}
-                                alt={openImage?.content}
-                                className="w-full h-auto object-contain"
-                            />
-                        </DialogContent>
-                    </Dialog>
-
-                    {/* Messages */}
-                    {messages.map((message, index) => (
-                        <Message
-                            key={message._id}
-                            message={message}
-                            previous={messages[index - 1]}
-                            next={messages[index + 1]}
-                            onOpen={setOpenImage}
-                        />
-                    ))}
-
-                    {/* Loading More */}
-                    {loading && <Loader className="w-4 h-4" />}
-
-                    {/* Typing Animation */}
-                    {typing.length > 0 && (
-                        <div className="flex items-end space-x-2 mt-3">
-                            <Picture user={other} size={60} />
-                            <div className="bg-muted text-muted-foreground px-3 py-2 rounded-2xl">
-                                <div className="flex space-x-1 items-center">
-                                    <span className="dot w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
-                                    <span className="dot w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:0.15s]" />
-                                    <span className="dot w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:0.3s]" />
-                                </div>
-                            </div>
-                        </div>
-                    )}
+        <div className="flex-grow h-full flex flex-col max-w-full overflow-hidden">
+            {loading && (
+                <div className="flex justify-center py-2">
+                    <Loader className="w-5 h-5" />
                 </div>
-            </ScrollArea>
+            )}
+
+            <div className="flex-1 overflow-hidden">
+                {/* Lightbox Dialog */}
+                {openImage && (
+                    <Lightbox
+                        medium={`${configuration.url || ""}/api/image/${
+                            openImage.content
+                        }`}
+                        large={`${configuration.url || ""}/api/image/${
+                            openImage.content
+                        }`}
+                        alt="Lightbox"
+                        hideDownload
+                        onClose={() => setOpenImage(null)}
+                    />
+                )}
+
+                {/* Scrollable Messages Area */}
+                <div
+                    ref={chatRef}
+                    onScroll={onScroll}
+                    className="h-full overflow-y-auto scroll-smooth"
+                >
+                    <div className="flex flex-col min-h-full">
+                        <div className="max-w-4xl mx-auto w-full px-4 py-2">
+                            {/* Messages */}
+                            {messages.map((message, index) => (
+                                <Message
+                                    key={message._id}
+                                    message={message}
+                                    previous={messages[index - 1]}
+                                    next={messages[index + 1]}
+                                    onOpen={setOpenImage}
+                                />
+                            ))}
+
+                            {/* Typing Animation */}
+                            {typing.length > 0 && (
+                                <div className="flex items-end space-x-2 mb-4">
+                                    <Picture user={other} size={60} />
+                                    <div className="bg-muted text-muted-foreground px-4 py-3 rounded-2xl rounded-bl-none">
+                                        <div className="flex space-x-1 items-center">
+                                            <span className="dot w-2 h-2 bg-gray-400 rounded-full animate-bounce" />
+                                            <span className="dot w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:0.15s]" />
+                                            <span className="dot w-2 h-2 bg-gray-400 rounded-full animate-bounce [animation-delay:0.3s]" />
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }

@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "@/hooks/useDispatch";
-import { addMessage, setRooms, setTyping } from "@/features/chat/chatSlice";
+import { setRooms, setTyping } from "@/features/chat/chatSlice";
 import { Message } from "@/actions/message";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
@@ -8,14 +8,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FiSend, FiImage, FiSmile, FiPaperclip } from "react-icons/fi";
 import { getRooms } from "@/actions/Rooms";
-import API from "@/lib/axios";
 import { getSocket } from "@/lib/socket";
 import { uploadFile, uploadImage } from "@/actions/upload";
 
 function BottomBar() {
     const imageInput = useRef(null);
     const fileInput = useRef(null);
-    // const ref = useGlobal("ref")[0];
     const room = useAppSelector((state) => state.chat.room);
     const user = useAppSelector((state) => state.auth.user);
 

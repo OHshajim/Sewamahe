@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { FiPhone, FiMoreHorizontal } from "react-icons/fi";
 import moment from "moment";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -13,37 +13,20 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import Picture from "@/components/Picture";
-// import getMeetingRoom from "@/actions/getMeetingRoom";
-// import postCall from "@/actions/postCall";
-// import removeRoom from "@/actions/removeRoom";
-// import getRooms from "@/actions/getRooms";
-// import myData from "@/actions/myData";
-import Actions from "@/constants/Actions";
 import { useAppSelector } from "@/hooks/useDispatch";
-import { myData } from "@/actions/auth";
 import { getRooms, removeRoom } from "@/actions/Rooms";
 import { setRooms } from "@/features/chat/chatSlice";
+import { outgoingCall } from "@/features/call/callSlice";
+import { getMeetingRoom, postCall } from "@/actions/call";
 
 export default function Room({ room }) {
-    const roomsWithNewMessages = useAppSelector((state) => state.chat.messages);
     const onlineUsers = useAppSelector((state) => state.chat.onlineUsers);
     const typing = useAppSelector((state) => state.chat.typing[room?._id] || []);
-    const currentRoom = useAppSelector((state) => state.chat.room);
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const location = useLocation();
-
     const user = useAppSelector((state) => state.auth.user);
-    // const setAudio = useGlobal("audio")[1];
-    // const setVideo = useGlobal("video")[1];
-    // const setCallDirection = useGlobal("callDirection")[1];
-    // const setMeeting = useGlobal("meeting")[1];
-
     const [hover, setHover] = useState(false);
-    const [info, setInfo] = useState(null);
-
-    const width = window.innerWidth;
-    const isMobile = width < 700;
 
     let other ;
     room.people.forEach((person) => {
@@ -96,36 +79,33 @@ export default function Room({ room }) {
         return null;
     };
 
-    const call = async (callee, isVideo) => {
+    const call = async () => {
         // if (info?.balance.amount <= 4 && user.type === "user")
         //     return toast.warning("Low balance! Please top up your account.");
         // if (info?.consultantStatus === "Pending" && user.type === "Consultant")
         //     return toast.warning("You are unverified consultant");
-        // if (
-        //     onlineUsers.filter((u) => u.id === other._id).length === 0 &&
-        //     !room.isGroup
-        // )
-        //     return toast.warning("User is offline!");
-
-        // await setAudio(true);
-        // await setVideo(isVideo);
-        // await setCallDirection("outgoing");
-        // dispatch({ type: Actions.RTC_SET_COUNTERPART, counterpart: callee });
-
-        // try {
-        //     const res = await getMeetingRoom({
-        //         startedAsCall: true,
-        //         caller: user.id,
-        //         callee: other._id,
-        //         callToGroup: room.isGroup,
-        //         group: room._id,
-        //     });
-        //     await setMeeting(res.data);
-        //     navigate(`/meeting/${res.data._id}`, { replace: true });
-        //     await postCall({ roomID: room._id, meetingID: res.data._id });
-        // } catch (e) {
-        //     toast.error("Server error. Unable to initiate call.");
-        // }
+        if ( onlineUsers.filter((u) => u.id === other._id).length === 0 )
+            return toast.warning("User is offline!");
+        const type = "audio";
+        dispatch(
+            outgoingCall({
+                roomId: room._id,
+                type,
+                callee: other,
+                caller: user,
+            })
+        );
+        try {
+            const res = await getMeetingRoom({
+                caller: user._id,
+                callee: other._id,
+                type,
+            });
+            navigate(`/meeting/${res._id}`, { replace: true });
+            await postCall({ roomID: room._id, meetingID: res._id, type });
+        } catch (e) {
+            toast.error("Server error. Unable to initiate call.");
+        }
     };
 
     const remove = async () => {
@@ -139,20 +119,6 @@ export default function Room({ room }) {
             toast.error("Error while removing room. Please try again.");
         }
     };
-
-    useEffect(() => {
-        const fetchInfo = async () => {
-            if (user?._id) {
-                try {
-                    const res = await myData();
-                    setInfo(res.data);
-                } catch (e) {
-                    console.error("Error fetching user info:", e);
-                }
-            }
-        };
-        fetchInfo();
-    }, [user?._id]);
 
     const status = getStatus();
 
@@ -213,14 +179,7 @@ export default function Room({ room }) {
                         hover ? "group-hover:flex " : "group-hover:flex hidden"
                     } items-center"`}
                 >
-                    <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            call(other, false);
-                        }}
-                    >
+                    <Button size="icon" variant="ghost" onClick={call}>
                         <FiPhone className="h-4 w-4" />
                     </Button>
                     <DropdownMenu

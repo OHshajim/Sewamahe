@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import { memo } from "react";
 import moment from "moment";
 import emojiRegex from "emoji-regex";
 import DOMPurify from "dompurify";
@@ -132,30 +132,31 @@ const Message = memo(({ message, previous, next, onOpen }: MessageProps) => {
     return (
         <div
             className={cn(
-                "flex w-full mb-0.5",
+                "flex w-full mb-0.5 relative",
                 isMine ? "justify-end" : "justify-start",
                 attachPrevious ? "mt-0" : "mt-3"
             )}
         >
             {/* Avatar (left side) */}
             {!isMine &&
-                (!attachPrevious ? (
-                    <div className="mr-2">
-                        <Picture user={author} size={60} />
-                    </div>
-                ) : (
-                    <div className="w-11 mr-2" />
-                ))}
+                <div className="w-14 mr-4">
+                    {!attachPrevious && (
+                        <div className="absolute top-0 left-0">
+                            <Picture user={author} size={60} />
+                        </div>
+                    )}
+                </div>
+            }
 
             {/* Message bubble */}
             <div className="flex flex-col md:max-w-xs md:w-full">
                 <Card
                     className={cn(
-                        "relative px-3 py-2 rounded-xl w-full transition-all duration-200 border-none shadow-none",
+                        "relative p-3 rounded-xl w-full transition-all duration-200 border-none shadow-none",
                         type === "image" && "p-0 my-2 bg-transparent",
                         isMine
                             ? "bg-[#54d38a] text-white font-normal rounded-tr-none ml-auto"
-                            : "bg-white text-foreground rounded-tl-none mr-auto",
+                            : "bg-white text-gray-500 rounded-tl-none mr-auto",
                         isOnlyEmoji &&
                             "bg-transparent w-fit text-4xl leading-snug",
                         attachPrevious && "rounded-tl-xl rounded-tr-xl mt-0",
@@ -192,13 +193,14 @@ const Message = memo(({ message, previous, next, onOpen }: MessageProps) => {
 
             {/* Avatar (right side, mine) */}
             {isMine &&
-                (!attachPrevious ? (
-                    <div className="ml-2">
-                        <Picture user={author} size={60} />
-                    </div>
-                ) : (
-                    <div className="w-11 ml-2" />
-                ))}
+                <div className="w-14 ml-4">
+                    {!attachPrevious &&
+                        <div className="absolute top-0 right-0">
+                            <Picture user={author} size={60} />
+                        </div>
+                    }
+                </div>
+            }
         </div>
     );
 });

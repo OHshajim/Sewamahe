@@ -1,22 +1,21 @@
 import {  useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import Picture from "../../components/Picture";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/hooks/useDispatch";
 import { logout } from "@/features/auth/authSlice";
-import Favorites from "./components/Favorites";
-import Search from "./components/Search";
-import { getFavorite, getUsers } from "@/actions/user";
-import { ResetPasswordPopup } from "./components/Popup";
-import TopBar from "./components/DashboardNav";
 import { getRooms } from "@/actions/Rooms";
+import { getFavorite, getUsers } from "@/actions/user";
 import { setFavorites, setRooms } from "@/features/chat/chatSlice";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import Favorites from "./components/Favorites";
 import Room from "./components/components/Room";
-import { SearchIcon } from "lucide-react";
-import { FiMessageCircle, FiSearch, FiStar } from "react-icons/fi";
+import Search from "./components/Search";
+import TopBar from "./components/DashboardNav";
+import { ResetPasswordPopup } from "./components/Popup";
 import Setting from "./Setting";
+import { FiMessageCircle, FiSearch, FiStar } from "react-icons/fi";
+import { SearchIcon } from "lucide-react";
+
 
 const Sidebar = ({ className = "" }) => {
     const user = useAppSelector((state) => state.auth.user); 

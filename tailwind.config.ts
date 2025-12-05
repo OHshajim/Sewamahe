@@ -2,9 +2,7 @@ import type { Config } from "tailwindcss";
 
 export default {
     darkMode: ["class"],
-    content: [
-        "./src/**/*.{js,ts,jsx,tsx}",
-    ],
+    content: ["./src/**/*.{js,ts,jsx,tsx}"],
     prefix: "",
     theme: {
         container: {
@@ -84,10 +82,31 @@ export default {
                         height: "0",
                     },
                 },
+                ringPulse: {
+                    '0%': {
+                        width: '150px',
+                        height: '150px',
+                        border: '10px double #da7d02',
+                        padding: '4px'
+                    },
+                    '50%': {
+                        width: '150px',
+                        height: '150px',
+                        border: '0px solid #ffffff',
+                        padding: '0'
+                    },
+                    '100%': {
+                        width: '150px',
+                        height: '150px',
+                        border: '10px double #da7d02',
+                        padding: '4px'
+                    },
+                },
             },
             animation: {
                 "accordion-down": "accordion-down 0.2s ease-out",
                 "accordion-up": "accordion-up 0.2s ease-out",
+                ringPulse: "ringPulse 2s ease-out infinite",
             },
         },
     },
