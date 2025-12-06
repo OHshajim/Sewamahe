@@ -1,0 +1,52 @@
+.admin-content-wrapper
+  height: 100vh
+  display: flex
+  flex-direction: column
+  overflow: hidden
+
+.admin-contact-page
+  flex: 1
+  display: flex
+  flex-direction: column
+  padding: 2rem
+  overflow: hidden
+
+.admin-contact-title
+  font-size: 2rem
+  margin-bottom: 1.5rem
+  text-align: center
+  color: #333
+
+.contact-scroll-container
+  flex: 1
+  overflow-y: auto
+  padding-right: 0.5rem
+
+.contact-card-container
+  display: grid
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr))
+  gap: 1.5rem
+  padding-bottom: 2rem
+
+.contact-card
+  background-color: #fff
+  padding: 1.5rem
+  border-radius: 10px
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1)
+  transition: transform 0.2s ease-in-out
+
+  &:hover
+    transform: translateY(-5px)
+
+  h3
+    margin-bottom: 0.5rem
+    color: #0073e6
+
+  p
+    margin: 0.3rem 0
+    color: #444
+
+  .contact-time
+    font-size: 0.85rem
+    color: #888
+    margin-top: 0.5rem
