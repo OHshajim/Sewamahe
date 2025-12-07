@@ -46,8 +46,6 @@ export const AppRoutes = () => {
             <Route path="/terms" element={<Terms />} />
             <Route path="/login" element={<Login />} />
             <Route path="/forgot-password" element={<ForgetPassword />} />
-            <Route path="/admin" element={<ForgetPassword />} />
-
             <Route
                 path="/*"
                 element={!user ? <Navigate to="/" /> : <PrivetRoutes />}
