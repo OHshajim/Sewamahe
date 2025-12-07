@@ -11,12 +11,24 @@ import { Cpu, Ellipsis, Settings } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const TopBar = ({ setShowSettings, showSettings, Logout, user }) => {
-  const links = [
+  const userLinks = [
     { name: "Home", path: "/" },
     { name: "About Us", path: "/about" },
     { name: "Privacy Policy", path: "/privacy" },
     { name: "Terms Of Use", path: "/terms" },
     { name: "Contact Us", path: "/contact" },
+  ];
+  const adminLinks = [
+    { name: "Admin Dashboard", path: "/admin" },
+    { name: "User Management", path: "/admin/users" },
+    { name: "Settings", path: "/admin/settings" },
+    { name: "Consultant", path: "/admin/consultant" },
+    { name: "Withdrawal Request", path: "/admin/withdrawal-request" },
+    { name: "All Transaction", path: "/admin/transaction" },
+    { name: "About us", path: "/admin/aboutAs" },
+    { name: "Contact us", path: "/admin/contactAs" },
+    { name: "Terms of use", path: "/admin/aboutAs" },
+    { name: "Privacy Policy", path: "/admin/aboutAs" },
   ];
 
   return (
@@ -30,9 +42,11 @@ const TopBar = ({ setShowSettings, showSettings, Logout, user }) => {
       <div className="flex items-center">
         {/* Settings Button */}
 
-        <Link to={"/admin"}>
-          <Cpu size={20} />
-        </Link>
+        {user?.role === "admin" && (
+          <Link to={"/admin"}>
+            <Cpu size={20} />
+          </Link>
+        )}
 
         <Button
           variant="ghost"
@@ -52,13 +66,21 @@ const TopBar = ({ setShowSettings, showSettings, Logout, user }) => {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48 ">
-            {links.map((l) => (
-              <Link key={l.name} to={l.path}>
-                <DropdownMenuItem className="text-xs">
-                  {l.name}
-                </DropdownMenuItem>
-              </Link>
-            ))}
+            {user.role !== "admin"
+              ? adminLinks.map((l) => (
+                  <Link key={l.name} to={l.path}>
+                    <DropdownMenuItem className="text-xs">
+                      {l.name}
+                    </DropdownMenuItem>
+                  </Link>
+                ))
+              : userLinks.map((l) => (
+                  <Link key={l.name} to={l.path}>
+                    <DropdownMenuItem className="text-xs">
+                      {l.name}
+                    </DropdownMenuItem>
+                  </Link>
+                ))}
             <DropdownMenuSeparator />
             <DropdownMenuItem
               className="text-red-600 text-xs"

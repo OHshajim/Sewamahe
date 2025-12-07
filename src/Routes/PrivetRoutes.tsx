@@ -7,6 +7,7 @@ import DetailsPanel from "@/pages/DashboardSidebar/DetailsPanel";
 import NotFound from "@/pages/NotFound";
 import Conversation from "@/pages/Conversation/Conversation";
 import Meeting from "@/pages/Meeting/Meeting";
+import AdminDashboard from "@/pages/Admin/AdminDashboard";
 
 function PrivetRoutes() {
   const navigate = useNavigate();
@@ -43,7 +44,7 @@ function PrivetRoutes() {
 
 
           {/* admin */}
-          <Route path="/admin" element={<Conversation />} />
+          <Route path="/admin" element={<AdminDashboard />} />
           {/* <Route path="/admin" element={<Conversation />} />
           <Route path="/admin" element={<Conversation />} />
           <Route path="/admin" element={<Conversation />} />
