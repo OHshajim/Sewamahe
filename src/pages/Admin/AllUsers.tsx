@@ -288,7 +288,6 @@ const AllUsers = () => {
       cell: (row) => (
         <div className="font-medium text-gray-900">{row.userId}</div>
       ),
-      //       width: '120px',
     },
     {
       name: "User",
@@ -297,14 +296,12 @@ const AllUsers = () => {
       cell: (row) => (
         <div className="font-medium text-gray-900">{row.name}</div>
       ),
-      //       minWidth: '250px',
     },
     {
       name: "Status",
       selector: (row) => row.status,
       sortable: true,
       cell: (row) => <StatusBadge status={row.status} />,
-      //       width: '110px',
     },
     {
       name: "Role",
@@ -322,7 +319,6 @@ const AllUsers = () => {
           {row.role.charAt(0).toUpperCase() + row.role.slice(1)}
         </span>
       ),
-      //       width: '90px',
     },
     {
       name: "Balance",
@@ -331,7 +327,6 @@ const AllUsers = () => {
       cell: (row) => (
         <div className="font-medium text-gray-900">{row.balance}</div>
       ),
-      //       width: '100px',
     },
     {
       name: "Join Date",
@@ -342,7 +337,6 @@ const AllUsers = () => {
           {new Date(row.joinDate).toLocaleDateString()}
         </div>
       ),
-      //       width: '110px',
     },
     {
       name: "Actions",
@@ -366,7 +360,6 @@ const AllUsers = () => {
           </button>
         </div>
       ),
-      //       width: '120px',
       ignoreRowClick: true,
     },
   ];
@@ -390,7 +383,7 @@ const AllUsers = () => {
         paddingBottom: "0.75rem",
         fontSize: "0.75rem",
         fontWeight: "600",
-        textTransform: "uppercase",
+        textTransform: "uppercase" as const,
         color: "#6b7280",
       },
     },
