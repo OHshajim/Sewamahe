@@ -9,6 +9,9 @@ import Conversation from "@/pages/Conversation/Conversation";
 import Meeting from "@/pages/Meeting/Meeting";
 import AdminDashboard from "@/pages/Admin/AdminDashboard";
 import AllUsers from "@/pages/Admin/AllUsers";
+import Settings from "@/pages/Admin/Setting";
+import AdminConsultant from "@/pages/Admin/Consultant";
+import WithdrawalRequest from "@/pages/Admin/WithdrawalRequest";
 
 function PrivetRoutes() {
   const navigate = useNavigate();
@@ -46,6 +49,9 @@ function PrivetRoutes() {
           {/* admin */}
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin/users" element={<AllUsers />} />
+          <Route path="/admin/settings" element={<Settings />} />
+          <Route path="/admin/consultant" element={<AdminConsultant />} />
+          <Route path="/admin/withdrawal-request" element={<WithdrawalRequest />} />
         </Routes>
       </div>
       {location.includes("/info") || location.includes("/meeting") || (
