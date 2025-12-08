@@ -15,6 +15,11 @@ import WithdrawalRequest from "@/pages/Admin/WithdrawalRequest";
 import ViewWithdrawalRequest from "@/pages/Admin/ViewWithdrawalRequest";
 import AdminTransaction from "@/pages/Admin/AllTransaction";
 import ViewAdminTransaction from "@/pages/Admin/ViewTransaction";
+import AllTransaction from "@/pages/Admin/AllTransaction";
+import AdminPrivacy from "@/pages/Admin/AdminPrivacy";
+import AdminTerms from "@/pages/Admin/AdminTerms";
+import AdminContact from "@/pages/Admin/AdminContact";
+import AdminAbout from "@/pages/Admin/AdminAbout";
 
 function PrivetRoutes() {
   const navigate = useNavigate();
@@ -67,11 +72,10 @@ function PrivetRoutes() {
             path="/admin/transaction/view/:id"
             element={<ViewAdminTransaction />}
           />
-          {/* 
-          <Route path="/admin/about" element={<AllTransaction />} />
-          <Route path="/admin/contact" element={<AllTransaction />} />
-          <Route path="/admin/terms" element={<AllTransaction />} />
-          <Route path="/admin/privacy" element={<AllTransaction />} /> */}
+          <Route path="/admin/aboutAs" element={<AdminAbout />} />
+          <Route path="/admin/contactAs" element={<AdminContact />} />
+          <Route path="/admin/terms" element={<AdminTerms />} />
+          <Route path="/admin/privacy" element={<AdminPrivacy />} />
         </Routes>
       </div>
       {location.includes("/info") || location.includes("/meeting") || (
