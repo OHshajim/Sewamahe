@@ -1,189 +1,203 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from 'react';
 
-const SimpleWelcomePage = () => {
-  const [currentTime, setCurrentTime] = useState("");
+function AdminDashboard() {
+  // const [user] = useGlobal('user');
+  const [loading, setLoading] = useState(false);
 
-  // Update time
-  useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      const options = { 
-        weekday: 'long', 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-      };
-      setCurrentTime(now.toLocaleDateString('en-US', options));
-    };
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    todayWithdrawal: 0,
+    todayTopup: 0,
+    allWithdrawal: 0,
+    allTopup: 0,
+  });
 
-    updateTime();
-    const interval = setInterval(updateTime, 1000);
-    return () => clearInterval(interval);
-  }, []);
+  // useEffect(() => {
+  //   const fetchStats = async () => {
+  //     setLoading(true);
+  //     try {
+  //       const { data } = await axios.get(`${Config.url}/api/admin/users/all/${user.id}/${user.email}`);
+  //       const { users } = data;
 
-  // Stats data
-  const stats = [
-    { label: "Projects Completed", value: "48" },
-    { label: "Happy Clients", value: "32" },
-    { label: "Active Users", value: "1,254" },
-    { label: "Team Members", value: "12" },
-  ];
+  //       const today = new Date().toISOString().slice(0, 10);
 
-  // Quick actions
-  const quickActions = [
-    { title: "Create Project", description: "Start a new project" },
-    { title: "View Reports", description: "Check analytics" },
-    { title: "Add Team Member", description: "Invite new member" },
-    { title: "Settings", description: "Configure preferences" },
+  //       const totalUsers = users.length;
+  //       let todayWithdrawal = 0;
+  //       let todayTopup = 0;
+  //       let allWithdrawal = 0;
+  //       let allTopup = 0;
+
+  //       users.forEach((user) => {
+  //         if (Array.isArray(user.history)) {
+  //           user.history.forEach((entry) => {
+  //             const entryDate = new Date(entry.createdAt).toISOString().slice(0, 10);
+
+  //             if (entry.historyType === 'withdrawal') {
+  //               allWithdrawal++;
+  //               if (entryDate === today) todayWithdrawal++;
+  //             }
+
+  //             if (entry.historyType === 'top-up') {
+  //               allTopup++;
+  //               if (entryDate === today) todayTopup++;
+  //             }
+  //           });
+  //         }
+  //       });
+
+  //       setStats({
+  //         totalUsers,
+  //         todayWithdrawal,
+  //         todayTopup,
+  //         allWithdrawal,
+  //         allTopup,
+  //       });
+  //     } catch (error) {
+  //       console.error('Error fetching dashboard stats:', error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchStats();
+  // }, [user]);
+
+
+  const statCards = [
+    {
+      title: "Today's Top-ups",
+      value: stats.todayTopup,
+      subtitle: "Recent transactions",
+      icon: (
+        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          <path fillRule="evenodd" d="M5 2a2 2 0 00-2 2v14l3.5-2 3.5 2 3.5-2 3.5 2V4a2 2 0 00-2-2H5zm2.5 3a1.5 1.5 0 100 3 1.5 1.5 0 000-3zm6.207.293a1 1 0 00-1.414 0l-6 6a1 1 0 101.414 1.414l6-6a1 1 0 000-1.414zM12.5 10a1.5 1.5 0 100 3 1.5 1.5 0 000-3z" clipRule="evenodd" />
+        </svg>
+      ),
+      bgColor: "bg-gradient-to-r from-green-50 to-emerald-50",
+      borderColor: "border-green-200",
+      iconColor: "text-green-600",
+      iconBg: "bg-white"
+    },
+    {
+      title: "Today's Withdrawals",
+      value: stats.todayWithdrawal,
+      subtitle: "Recent transactions",
+      icon: (
+        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm12 2H4v4h12V6z" clipRule="evenodd" />
+          <path fillRule="evenodd" d="M4 14a2 2 0 00-2 2v4a2 2 0 002 2h12a2 2 0 002-2v-4a2 2 0 00-2-2H4zm12 2H4v4h12v-4z" clipRule="evenodd" />
+        </svg>
+      ),
+      bgColor: "bg-gradient-to-r from-blue-50 to-cyan-50",
+      borderColor: "border-blue-200",
+      iconColor: "text-blue-600",
+      iconBg: "bg-white"
+    },
+    {
+      title: "Total Users",
+      value: stats.totalUsers,
+      subtitle: "Registered accounts",
+      icon: (
+        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org2000/svg">
+          <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
+        </svg>
+      ),
+      bgColor: "bg-gradient-to-r from-purple-50 to-violet-50",
+      borderColor: "border-purple-200",
+      iconColor: "text-purple-600",
+      iconBg: "bg-white"
+    },
+    {
+      title: "All Top-ups",
+      value: stats.allTopup,
+      subtitle: "Total transactions",
+      icon: (
+        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd" />
+        </svg>
+      ),
+      bgColor: "bg-gradient-to-r from-emerald-50 to-teal-50",
+      borderColor: "border-emerald-200",
+      iconColor: "text-emerald-600",
+      iconBg: "bg-white"
+    },
+    {
+      title: "All Withdrawals",
+      value: stats.allWithdrawal,
+      subtitle: "Total transactions",
+      icon: (
+        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          <path fillRule="evenodd" d="M12 13a1 1 0 100 2h5a1 1 0 001-1V9a1 1 0 10-2 0v2.586l-4.293-4.293a1 1 0 00-1.414 0L8 9.586l-4.293-4.293a1 1 0 00-1.414 1.414l5 5a1 1 0 001.414 0L11 9.414 14.586 13H12z" clipRule="evenodd" />
+        </svg>
+      ),
+      bgColor: "bg-gradient-to-r from-cyan-50 to-sky-50",
+      borderColor: "border-cyan-200",
+      iconColor: "text-cyan-600",
+      iconBg: "bg-white"
+    }
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 overflow-y-auto">
-      {/* Main Content Container */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-        
-        {/* Welcome Header */}
-        <div className="text-center mb-10 md:mb-16">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-gray-900 mb-3">
-            Welcome Back, <span className="text-gray-700">Admin</span>
-          </h1>
-          <p className="text-gray-600 text-base sm:text-lg md:text-xl max-w-2xl mx-auto">
-            Manage your dashboard, monitor activities, and track performance from one place
-          </p>
-          <div className="mt-4 text-sm sm:text-base text-gray-500">
-            {currentTime}
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      
+      <div className="p-4 md:p-6 lg:p-8">
+        {/* Header */}
+        <div className="mb-6 md:mb-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+              <p className="text-gray-600 mt-2">Welcome back! Here's what's happening with your platform.</p>
+            </div>
+            <div className="mt-3 sm:mt-0">
+              <div className="text-sm text-gray-500 bg-white px-4 py-2 rounded-lg border border-gray-200 inline-block">
+                Last updated: {new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-10 md:mb-16">
-          {stats.map((stat, index) => (
-            <div 
-              key={index}
-              className="bg-white rounded-xl p-5 sm:p-6 shadow-md border border-gray-200 hover:shadow-lg transition-shadow duration-300"
-            >
-              <div className="text-center">
-                <div className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
-                  {stat.value}
-                </div>
-                <div className="text-gray-600 text-sm sm:text-base">
-                  {stat.label}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Main Content Area */}
-        <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden mb-10 md:mb-16">
-          <div className="p-6 sm:p-8 md:p-10">
-            
-            {/* Welcome Message */}
-            <div className="mb-8 md:mb-12">
-              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
-                Dashboard Overview
-              </h2>
-              <p className="text-gray-600 leading-relaxed">
-                Everything you need to manage your platform is right here. Monitor key metrics, 
-                track user activities, and make data-driven decisions with our comprehensive 
-                dashboard tools.
-              </p>
-            </div>
-
-            {/* Quick Actions */}
-            <div className="mb-8 md:mb-12">
-              <h3 className="text-xl font-semibold text-gray-900 mb-6">
-                Quick Actions
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {quickActions.map((action, index) => (
-                  <button
-                    key={index}
-                    className="bg-gray-50 hover:bg-gray-100 border border-gray-300 rounded-xl p-5 text-left transition-all duration-300 hover:border-gray-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-gray-300"
-                  >
-                    <div className="text-gray-900 font-semibold text-lg mb-2">
-                      {action.title}
+        {loading ? (
+          <div className="flex flex-col items-center justify-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"></div>
+            <p className="mt-4 text-gray-600">Loading dashboard data...</p>
+          </div>
+        ) : (
+          <>
+            {/* Stats Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-4 md:gap-6 mb-8">
+              {statCards.map((card, index) => (
+                <div 
+                  key={index} 
+                  className={`${card.bgColor} border ${card.borderColor} rounded-xl p-5 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1`}
+                >
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-gray-500 mb-1">{card.title}</p>
+                      <p className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">
+                        {card.value.toLocaleString()}
+                      </p>
+                      <p className="text-xs text-gray-400">{card.subtitle}</p>
                     </div>
-                    <div className="text-gray-600 text-sm">
-                      {action.description}
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Recent Updates */}
-            <div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-6">
-                Recent Updates
-              </h3>
-              <div className="space-y-4">
-                {[
-                  { title: "System Update", desc: "Version 2.1 deployed successfully", time: "2 hours ago" },
-                  { title: "New Feature", desc: "Added advanced analytics module", time: "Yesterday" },
-                  { title: "Security Patch", desc: "Applied latest security updates", time: "3 days ago" },
-                ].map((update, index) => (
-                  <div 
-                    key={index}
-                    className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors duration-200"
-                  >
-                    <div>
-                      <div className="font-medium text-gray-900">{update.title}</div>
-                      <div className="text-gray-600 text-sm mt-1">{update.desc}</div>
-                    </div>
-                    <div className="text-gray-500 text-sm mt-2 sm:mt-0">
-                      {update.time}
+                    <div className={`${card.iconBg} ${card.iconColor} rounded-lg p-2 ml-2`}>
+                      {card.icon}
                     </div>
                   </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Footer Section */}
-          <div className="bg-gray-50 border-t border-gray-200 p-6 sm:p-8">
-            <div className="flex flex-col sm:flex-row justify-between items-center">
-              <div className="mb-4 sm:mb-0">
-                <div className="text-gray-900 font-semibold mb-1">
-                  Need Help?
+                  <div className="mt-4 pt-4 border-t border-gray-100">
+                    <div className="flex items-center text-xs text-gray-500">
+                      <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path fillRule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clipRule="evenodd" />
+                      </svg>
+                      <span>Updated just now</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="text-gray-600 text-sm">
-                  Check our documentation or contact support
-                </div>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <button className="px-5 py-2.5 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gray-700">
-                  Documentation
-                </button>
-                <button className="px-5 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors text-sm font-medium focus:outline-none focus:ring-2 focus:ring-gray-300">
-                  Contact Support
-                </button>
-              </div>
+              ))}
             </div>
-          </div>
-        </div>
-
-        {/* Call to Action */}
-        <div className="text-center pb-8 md:pb-12">
-          <h3 className="text-2xl font-bold text-gray-900 mb-4">
-            Ready to get started?
-          </h3>
-          <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
-            Explore all features and make the most out of your dashboard experience.
-          </p>
-          <button className="px-8 py-3.5 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors font-medium text-lg shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-gray-700 focus:ring-offset-2">
-            Explore Dashboard
-          </button>
-        </div>
-
-        {/* Additional space for scrolling */}
-        <div className="h-20"></div>
+          </>
+        )}
       </div>
     </div>
   );
-};
+}
 
-export default SimpleWelcomePage;
+export default AdminDashboard;
