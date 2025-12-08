@@ -8,6 +8,7 @@ import NotFound from "@/pages/NotFound";
 import Conversation from "@/pages/Conversation/Conversation";
 import Meeting from "@/pages/Meeting/Meeting";
 import AdminDashboard from "@/pages/Admin/AdminDashboard";
+import AllUsers from "@/pages/Admin/AllUsers";
 
 function PrivetRoutes() {
   const navigate = useNavigate();
@@ -42,15 +43,9 @@ function PrivetRoutes() {
           {/* not found page */}
           <Route path="/*" element={<NotFound />} />
 
-
           {/* admin */}
           <Route path="/admin" element={<AdminDashboard />} />
-          {/* <Route path="/admin" element={<Conversation />} />
-          <Route path="/admin" element={<Conversation />} />
-          <Route path="/admin" element={<Conversation />} />
-          <Route path="/admin" element={<Conversation />} />
-          <Route path="/admin" element={<Conversation />} /> */}
-
+          <Route path="/admin/users" element={<AllUsers />} />
         </Routes>
       </div>
       {location.includes("/info") || location.includes("/meeting") || (

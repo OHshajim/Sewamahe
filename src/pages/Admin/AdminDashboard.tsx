@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 
 function AdminDashboard() {
-  // const [user] = useGlobal('user');
   const [loading, setLoading] = useState(false);
 
   const [stats, setStats] = useState({
