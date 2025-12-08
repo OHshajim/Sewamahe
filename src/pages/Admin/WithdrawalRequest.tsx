@@ -152,7 +152,6 @@ function WithdrawalRequest() {
   // Handle view withdrawal
   const handleView = (id) => {
     navigate(`/admin/withdrawal-request/view/${id}`);
-    alert(`Would navigate to withdrawal details page for ID: ${id} (mock)`);
   };
 
   // Handle bulk actions
