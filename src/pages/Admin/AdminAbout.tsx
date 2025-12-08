@@ -212,7 +212,7 @@ function AdminAbout() {
         )}
 
         {/* Main Content Area */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div className="mb-8">
           {/* Editor Panel */}
           {!previewMode ? (
             <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
@@ -275,97 +275,6 @@ function AdminAbout() {
               </div>
             </div>
           )}
-
-          {/* Preview Panel (always visible) */}
-          <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-              <FiAlertCircle className="w-5 h-5 mr-2 text-purple-600" />
-              Preview Information
-            </h3>
-            <div className="space-y-4">
-              <div>
-                <h4 className="font-medium text-gray-900 mb-2">Content Analysis</h4>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Headings (h1-h6)</span>
-                    <span className="font-medium text-gray-900">
-                      {(aboutInfo.match(/<h[1-6][^>]*>/gi) || []).length}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Paragraphs</span>
-                    <span className="font-medium text-gray-900">
-                      {(aboutInfo.match(/<p[^>]*>/gi) || []).length}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Lists</span>
-                    <span className="font-medium text-gray-900">
-                      {(aboutInfo.match(/<(ul|ol)[^>]*>/gi) || []).length}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Links</span>
-                    <span className="font-medium text-gray-900">
-                      {(aboutInfo.match(/<a[^>]*>/gi) || []).length}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="pt-4 border-t border-gray-100">
-                <h4 className="font-medium text-gray-900 mb-2">Quick Actions</h4>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    onClick={() => setAboutInfo(prev => prev + '\n<p>New paragraph added.</p>')}
-                    className="px-3 py-2 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 text-sm font-medium"
-                  >
-                    Add Paragraph
-                  </button>
-                  <button
-                    onClick={() => setAboutInfo(prev => prev + '\n<h2>New Section</h2>')}
-                    className="px-3 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 text-sm font-medium"
-                  >
-                    Add Heading
-                  </button>
-                  <button
-                    onClick={() => setAboutInfo(prev => prev + '\n<ul>\n  <li>List item</li>\n</ul>')}
-                    className="px-3 py-2 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 text-sm font-medium"
-                  >
-                    Add List
-                  </button>
-                  <button
-                    onClick={() => setAboutInfo(prev => prev.replace(/<[^>]*>/g, ''))}
-                    className="px-3 py-2 bg-red-50 text-red-700 rounded-lg hover:bg-red-100 text-sm font-medium"
-                  >
-                    Strip HTML
-                  </button>
-                </div>
-              </div>
-
-              <div className="pt-4 border-t border-gray-100">
-                <h4 className="font-medium text-gray-900 mb-2">Content Guidelines</h4>
-                <ul className="space-y-2 text-sm text-gray-600">
-                  <li className="flex items-start">
-                    <div className="w-1 h-1 bg-gray-400 rounded-full mt-2 mr-2"></div>
-                    Keep content clear and concise
-                  </li>
-                  <li className="flex items-start">
-                    <div className="w-1 h-1 bg-gray-400 rounded-full mt-2 mr-2"></div>
-                    Use proper HTML structure
-                  </li>
-                  <li className="flex items-start">
-                    <div className="w-1 h-1 bg-gray-400 rounded-full mt-2 mr-2"></div>
-                    Test preview before saving
-                  </li>
-                  <li className="flex items-start">
-                    <div className="w-1 h-1 bg-gray-400 rounded-full mt-2 mr-2"></div>
-                    Avoid excessive formatting
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Recent Changes */}

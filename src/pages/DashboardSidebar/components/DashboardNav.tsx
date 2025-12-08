@@ -27,8 +27,8 @@ const TopBar = ({ setShowSettings, showSettings, Logout, user }) => {
     { name: "All Transaction", path: "/admin/transaction" },
     { name: "About us", path: "/admin/aboutAs" },
     { name: "Contact us", path: "/admin/contactAs" },
-    { name: "Terms of use", path: "/admin/aboutAs" },
-    { name: "Privacy Policy", path: "/admin/aboutAs" },
+    { name: "Terms of use", path: "/admin/terms" },
+    { name: "Privacy Policy", path: "/admin/privacy" },
   ];
 
   return (
