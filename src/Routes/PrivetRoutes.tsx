@@ -15,7 +15,6 @@ import WithdrawalRequest from "@/pages/Admin/WithdrawalRequest";
 import ViewWithdrawalRequest from "@/pages/Admin/ViewWithdrawalRequest";
 import AdminTransaction from "@/pages/Admin/AllTransaction";
 import ViewAdminTransaction from "@/pages/Admin/ViewTransaction";
-import AllTransaction from "@/pages/Admin/AllTransaction";
 import AdminPrivacy from "@/pages/Admin/AdminPrivacy";
 import AdminTerms from "@/pages/Admin/AdminTerms";
 import AdminContact from "@/pages/Admin/AdminContact";
