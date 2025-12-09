@@ -1,3 +1,4 @@
+import { getAllUsers } from "@/actions/admin";
 import React, { useState, useEffect, useRef } from "react";
 import DataTable from "react-data-table-component";
 import {
@@ -195,11 +196,15 @@ const AllUsers = () => {
 
   useEffect(() => {
     // Simulate API call
-    setTimeout(() => {
-      setUsers(sampleUsers);
-      setFilteredUsers(sampleUsers);
+
+    const fetch = async () => {
+      const { data: users } = await getAllUsers();
+      console.log(users);
+      setUsers(users);
+      setFilteredUsers(users);
       setLoading(false);
-    }, 1000);
+    };
+    fetch();
   }, []);
 
   useEffect(() => {
@@ -274,7 +279,7 @@ const AllUsers = () => {
         className={`px-3 py-1 rounded-full text-xs font-medium ${
           colors[status] || colors.inactive
         }`}>
-        {status.charAt(0).toUpperCase() + status.slice(1)}
+        {/* {status.charAt(0).toUpperCase() + status.slice(1)} */}
       </span>
     );
   };
@@ -316,7 +321,7 @@ const AllUsers = () => {
               ? "bg-blue-100 text-blue-800"
               : "bg-gray-100 text-gray-800"
           }`}>
-          {row.role.charAt(0).toUpperCase() + row.role.slice(1)}
+          {/* {row.role.charAt(0).toUpperCase() + row.role.slice(1)} */}
         </span>
       ),
     },
@@ -589,7 +594,7 @@ const AllUsers = () => {
 
         {/* DataTable Container */}
         <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-          <DataTable
+          {/* <DataTable
             title="User Management"
             columns={columns}
             data={filteredUsers}
@@ -627,7 +632,7 @@ const AllUsers = () => {
             dense
             fixedHeader
             //   fixedHeaderScrollHeight="calc(100vh - 400px)" // Adjust based on your layout
-          />
+          /> */}
         </div>
 
         {/* Bottom padding for better scrolling */}
