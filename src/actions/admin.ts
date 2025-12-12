@@ -6,3 +6,7 @@ export const getAllUsers = () => {
 export const deleteUser = (data) => {
   return API.delete("/api/admin/user", data);
 };
+
+export const updateUser = (data) => {
+  return API.put("/api/admin/user/update", data);
+};

@@ -1,4 +1,4 @@
-import { deleteUser, getAllUsers } from "@/actions/admin";
+import { deleteUser, getAllUsers, updateUser } from "@/actions/admin";
 import { register } from "@/actions/auth";
 import { useState, useEffect, useRef } from "react";
 import DataTable from "react-data-table-component";
@@ -37,10 +37,12 @@ const AllUsers = () => {
     email: "",
     type: "user",
     password: "",
-    userName: "",
+    username: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [userToEdit, setUserToEdit] = useState(null);
 
   useEffect(() => {
     const fetch = async () => {
@@ -82,6 +84,11 @@ const AllUsers = () => {
   const confirmDeleteUser = (user) => {
     setUserToDelete(user);
     setShowDeleteModal(true);
+  };
+
+  const confirmEditUser = (user) => {
+    setUserToEdit(user);
+    setIsEditing(true);
   };
 
   const handleDeleteUser = async () => {
@@ -159,6 +166,7 @@ const AllUsers = () => {
       cell: (row) => (
         <div className="flex items-center gap-1">
           <button
+            onClick={() => confirmEditUser(row)}
             className="p-1.5 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
             title="Edit">
             <FiEdit className="w-4 h-4" />
@@ -238,7 +246,7 @@ const AllUsers = () => {
       setIsSubmitting(true);
       // Logic to add a new user
       const reg = await register({
-        username: formData.userName,
+        username: formData.username,
         email: formData.email,
         firstName: formData.firstName,
         lastName: formData.lastName,
@@ -258,7 +266,7 @@ const AllUsers = () => {
           email: "",
           type: "user",
           password: "",
-          userName: "",
+          username: "",
         });
         setErrorMessage("");
       }
@@ -275,6 +283,45 @@ const AllUsers = () => {
       ...formData,
       [name]: value,
     });
+  };
+
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    const id = userToEdit._id;
+    const form = e.target;
+    const username = form.username.value;
+    const firstName = form.firstName.value;
+    const lastName = form.lastName.value;
+    const email = form.email.value;
+    const password = form.password.value;
+    setIsSubmitting(true);
+
+    try {
+      const res = await updateUser({
+        userId: id,
+        username,
+        firstName,
+        lastName,
+        email,
+        password,
+      });
+
+      if (res.data.success) {
+        const updatedUser = res.data.user;
+        const updatedUsers = users.map((user) =>
+          user._id === id ? updatedUser : user
+        );
+        setUsers(updatedUsers);
+        setFilteredUsers(updatedUsers);
+        setIsEditing(false);
+        setUserToEdit(null);
+        setIsSubmitting(false);
+      }
+    } catch (error) {
+      setIsSubmitting(false);
+      console.log(error);
+      setErrorMessage(error.response?.data?.message || "Failed to update user");
+    }
   };
 
   return (
@@ -449,8 +496,8 @@ const AllUsers = () => {
                     </label>
                     <input
                       type="text"
-                      name="userName"
-                      value={formData.userName}
+                      name="username"
+                      value={formData.username}
                       onChange={handleInputChange}
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                       required
@@ -551,6 +598,125 @@ const AllUsers = () => {
                     <>
                       <FiUserPlus className="w-4 h-4" />
                       Create User
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {isEditing && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-xl max-w-md w-full p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">
+                Update User
+              </h3>
+              <button
+                onClick={() => setCreateModalOpen(false)}
+                className="text-gray-400 hover:text-gray-600">
+                <FiX className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdate}>
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      User Name *
+                    </label>
+                    <input
+                      type="text"
+                      name="username"
+                      defaultValue={userToEdit.username}
+                      onChange={handleInputChange}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      First Name *
+                    </label>
+                    <input
+                      type="text"
+                      name="firstName"
+                      defaultValue={userToEdit.firstName}
+                      onChange={handleInputChange}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Last Name *
+                    </label>
+                    <input
+                      type="text"
+                      name="lastName"
+                      defaultValue={userToEdit.lastName}
+                      onChange={handleInputChange}
+                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Email *
+                  </label>
+                  <input
+                    type="email"
+                    name="email"
+                    defaultValue={userToEdit.email}
+                    onChange={handleInputChange}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Password *
+                  </label>
+                  <input
+                    type="password"
+                    name="password"
+                    defaultValue={userToEdit.password}
+                    onChange={handleInputChange}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    required
+                  />
+                </div>
+              </div>
+
+              <p className="text-sm text-red-500 font-bold mt-2">
+                {errorMessage}
+              </p>
+              <div className="flex justify-end gap-3 mt-6">
+                <button
+                  type="button"
+                  className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium"
+                  onClick={() => setIsEditing(false)}
+                  disabled={isSubmitting}>
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium flex items-center gap-2"
+                  disabled={isSubmitting}>
+                  {isSubmitting ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
+                      updating...
+                    </>
+                  ) : (
+                    <>
+                      <FiUserPlus className="w-4 h-4" />
+                      Update
                     </>
                   )}
                 </button>
