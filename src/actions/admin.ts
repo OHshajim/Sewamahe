@@ -54,3 +54,7 @@ export const getSingleWithdrawals = (id) => {
 export const updateWithdrawalStatus = ({ id, data }) => {
   return API.put(`/api/admin/withdrawal/update/${id}`, data);
 };
+
+export const getAllTransactions = () => {
+  return API.get("/api/admin/transactions/all");
+};
