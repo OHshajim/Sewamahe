@@ -1,7 +1,7 @@
 import API from "@/lib/axios";
 
 export const getAllUsers = () => {
-    return API.get("/api/admin/users/all");
+  return API.get("/api/admin/users/all");
 };
 export const deleteUser = (data) => {
   return API.delete("/api/admin/user", data);
@@ -43,4 +43,14 @@ export const consultantStatusUpdate = (data) => {
   return API.post("/api/admin/consultant-status-update", data);
 };
 
+export const getAllWithdrawals = () => {
+  return API.get("/api/admin/withdrawals/all");
+};
 
+export const getSingleWithdrawals = (id) => {
+  return API.get(`/api/admin/withdrawals/single/${id}`);
+};
+
+export const updateWithdrawalStatus = ({ id, data }) => {
+  return API.put(`/api/admin/withdrawal/update/${id}`, data);
+};

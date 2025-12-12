@@ -12,52 +12,71 @@ import {
   FiInfo,
 } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import {
+  getSingleWithdrawals,
+  getWebData,
+  updateWithdrawalStatus,
+} from "@/actions/admin";
+import { toast } from "sonner";
 
-function ViewWithdrawalRequest() {
-  const { id } = useParams();
+// Define types for the transaction data
+interface User {
+  name: string;
+  id: string;
+  email: string;
+}
+
+interface Transaction {
+  _id: string;
+  author: User;
+  amount: number;
+  account: string;
+  status: "pending" | "approved" | "processing" | "reject" | "completed";
+  createdAt: string;
+  paymentMethod: string;
+  ifsc: string;
+  holderName: string;
+  historyType: string;
+}
+
+function ViewWithdrawalRequest(): JSX.Element {
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  // Mock transaction data
-  const mockTransaction = {
-    _id: id || 1,
-    user: {
-      name: "John Doe",
-      email: "john@example.com",
-      phone: "+91 98765 43210",
-    },
-    withdrawal: {
-      amount: 1500.0,
-      paymentMethod: "Bank Transfer",
-      account: "State Bank\nAccount: XXXX-1234\nIFSC: SBIN0001234",
-      status: "pending",
-      createdAt: "2024-03-10T10:30:00Z",
-      transactionId: "TXN" + (id || "123456"),
-      remarks: "Monthly withdrawal request",
-    },
-    adminCharge: 2.5, // percentage
-  };
-
-  const [transaction, setTransaction] = useState(mockTransaction);
+  const [transaction, setTransaction] = useState<Transaction | null>(null);
   const [loading, setLoading] = useState(false);
   const [userReceives, setUserReceives] = useState(0);
+  const [adminCharge, setAdminCharge] = useState(0);
 
-  // Calculate user receives amount
-  useEffect(() => {
-    if (transaction?.withdrawal?.amount) {
-      const chargeAmount =
-        (transaction.withdrawal.amount * transaction.adminCharge) / 100;
-      const mainReturn = transaction.withdrawal.amount - chargeAmount;
-      setUserReceives(mainReturn);
-    }
-  }, [transaction]);
-
-  // Fetch transaction (mock)
+  // Fetch transaction
   useEffect(() => {
     setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
-    }, 500);
+
+    const fetchTransaction = async () => {
+      try {
+        if (!id) return;
+        const { data: websiteInfo } = await getWebData();
+        setAdminCharge(websiteInfo.data.withdrawalCharge);
+        const { data } = await getSingleWithdrawals(id);
+        if (data.success) {
+          setTransaction(data.withdrawal);
+          // Calculate user receives if transaction exists
+          if (data.withdrawal) {
+            const amount = data.withdrawal.amount;
+            const charge = websiteInfo.data.withdrawalCharge;
+            const receives = amount - (amount * charge) / 100;
+            setUserReceives(receives);
+          }
+
+          setLoading(false);
+        }
+      } catch (error) {
+        setLoading(false);
+        console.error("Error fetching transaction:", error);
+      }
+    };
+
+    fetchTransaction();
   }, [id]);
 
   // Handle back navigation
@@ -65,20 +84,8 @@ function ViewWithdrawalRequest() {
     navigate(-1);
   };
 
-  // Handle status update (mock)
-  const handleUpdateStatus = (status) => {
-    setTransaction((prev) => ({
-      ...prev,
-      withdrawal: {
-        ...prev.withdrawal,
-        status: status,
-      },
-    }));
-    alert(`Status updated to ${status} (mock update)`);
-  };
-
   // Status badge component
-  const StatusBadge = ({ status }) => {
+  const StatusBadge = ({ status }: { status: string }) => {
     const colors = {
       pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
       approved: "bg-green-100 text-green-800 border-green-200",
@@ -100,21 +107,31 @@ function ViewWithdrawalRequest() {
         ? "Rejected"
         : status === "pending"
         ? "Pending"
-        : status.charAt(0).toUpperCase() + status.slice(1);
+        : status?.charAt(0).toUpperCase() + status?.slice(1);
 
     return (
       <span
         className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-medium border ${
-          colors[status] || colors.pending
+          colors[status as keyof typeof colors] || colors.pending
         }`}>
-        {icons[status]}
+        {icons[status as keyof typeof icons] || icons.pending}
         {statusText}
       </span>
     );
   };
 
   // Info card component
-  const InfoCard = ({ icon: Icon, title, value, subtitle }) => (
+  const InfoCard = ({
+    icon: Icon,
+    title,
+    value,
+    subtitle,
+  }: {
+    icon: React.ElementType;
+    title: string;
+    value: string | number;
+    subtitle?: string;
+  }) => (
     <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-5 shadow-sm">
       <div className="flex items-center mb-3">
         <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center mr-3">
@@ -132,7 +149,17 @@ function ViewWithdrawalRequest() {
   );
 
   // Action buttons
-  const ActionButton = ({ onClick, children, color = "blue", icon: Icon }) => (
+  const ActionButton = ({
+    onClick,
+    children,
+    color = "blue",
+    icon: Icon,
+  }: {
+    onClick: () => void;
+    children: React.ReactNode;
+    color?: string;
+    icon?: React.ElementType;
+  }) => (
     <button
       onClick={onClick}
       className={`inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-colors ${
@@ -148,6 +175,20 @@ function ViewWithdrawalRequest() {
       {children}
     </button>
   );
+
+  // Define handleUpdateStatus at component level
+  const handleUpdateStatus = async (status) => {
+    console.log(status);
+    try {
+      const response = await updateWithdrawalStatus({ id, data: { status } });
+      if (response.data.success) {
+        setTransaction({ ...transaction, status });
+        toast.success("Status updated successfully");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <div
@@ -179,6 +220,10 @@ function ViewWithdrawalRequest() {
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent"></div>
           </div>
+        ) : !transaction ? (
+          <div className="text-center py-8">
+            <p className="text-gray-500">No transaction data found.</p>
+          </div>
         ) : (
           <>
             {/* Transaction ID and Status */}
@@ -186,32 +231,30 @@ function ViewWithdrawalRequest() {
               <div>
                 <div className="text-sm text-gray-500">Transaction ID</div>
                 <div className="text-lg font-bold text-gray-900 font-mono">
-                  {transaction.withdrawal.transactionId}
+                  {transaction._id.toString().slice(-8)}
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <div className="text-sm text-gray-500">Status</div>
-                <StatusBadge status={transaction.withdrawal.status} />
+                <StatusBadge status={transaction.status} />
               </div>
             </div>
 
             {/* Quick Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
               <InfoCard
                 icon={FiDollarSign}
                 title="Requested Amount"
-                value={`₹${transaction.withdrawal.amount.toLocaleString(
-                  "en-IN",
-                  { minimumFractionDigits: 2 }
-                )}`}
-                subtitle={undefined}
+                value={`₹${transaction.amount.toLocaleString("en-IN", {
+                  minimumFractionDigits: 2,
+                })}`}
               />
               <InfoCard
                 icon={FiPercent}
                 title="Admin Charge"
-                value={`${transaction.adminCharge}%`}
+                value={`${adminCharge}%`}
                 subtitle={`₹${(
-                  (transaction.withdrawal.amount * transaction.adminCharge) /
+                  (transaction.amount * adminCharge) /
                   100
                 ).toFixed(2)}`}
               />
@@ -226,19 +269,21 @@ function ViewWithdrawalRequest() {
               <InfoCard
                 icon={FiCalendar}
                 title="Request Date"
-                value={new Date(
-                  transaction.withdrawal.createdAt
-                ).toLocaleDateString("en-IN", {
-                  day: "2-digit",
-                  month: "short",
-                  year: "numeric",
-                })}
-                subtitle={new Date(
-                  transaction.withdrawal.createdAt
-                ).toLocaleTimeString("en-IN", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
+                value={new Date(transaction.createdAt).toLocaleDateString(
+                  "en-IN",
+                  {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                  }
+                )}
+                subtitle={new Date(transaction.createdAt).toLocaleTimeString(
+                  "en-IN",
+                  {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  }
+                )}
               />
             </div>
 
@@ -256,7 +301,7 @@ function ViewWithdrawalRequest() {
                       Full Name
                     </label>
                     <div className="text-gray-900 font-medium">
-                      {transaction.user.name}
+                      {transaction.author.name}
                     </div>
                   </div>
                   <div>
@@ -264,15 +309,7 @@ function ViewWithdrawalRequest() {
                       Email Address
                     </label>
                     <div className="text-gray-900">
-                      {transaction.user.email}
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Phone Number
-                    </label>
-                    <div className="text-gray-900">
-                      {transaction.user.phone}
+                      {transaction.author.email}
                     </div>
                   </div>
                 </div>
@@ -290,7 +327,7 @@ function ViewWithdrawalRequest() {
                       Payment Method
                     </label>
                     <div className="text-gray-900 font-medium">
-                      {transaction.withdrawal.paymentMethod}
+                      {transaction.paymentMethod}
                     </div>
                   </div>
                   <div>
@@ -298,15 +335,7 @@ function ViewWithdrawalRequest() {
                       Account Information
                     </label>
                     <div className="text-gray-900 whitespace-pre-line bg-gray-50 p-3 rounded-lg font-mono text-sm">
-                      {transaction.withdrawal.account}
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Remarks
-                    </label>
-                    <div className="text-gray-900">
-                      {transaction.withdrawal.remarks || "No remarks provided"}
+                      {transaction.account}
                     </div>
                   </div>
                 </div>
@@ -323,22 +352,17 @@ function ViewWithdrawalRequest() {
                   <span className="text-gray-600">Requested Amount</span>
                   <span className="font-medium text-gray-900">
                     ₹
-                    {transaction.withdrawal.amount.toLocaleString("en-IN", {
+                    {transaction.amount.toLocaleString("en-IN", {
                       minimumFractionDigits: 2,
                     })}
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-t border-gray-100">
                   <span className="text-gray-600">
-                    Admin Charge ({transaction.adminCharge}%)
+                    Admin Charge ({adminCharge}%)
                   </span>
                   <span className="font-medium text-red-600">
-                    - ₹
-                    {(
-                      (transaction.withdrawal.amount *
-                        transaction.adminCharge) /
-                      100
-                    ).toFixed(2)}
+                    - ₹{((transaction.amount * adminCharge) / 100).toFixed(2)}
                   </span>
                 </div>
                 <div className="flex justify-between items-center py-2 border-t border-gray-100">
@@ -355,13 +379,51 @@ function ViewWithdrawalRequest() {
               </div>
             </div>
 
+            {/* Transaction Timeline */}
+            <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm mt-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-6 pb-4 border-b border-gray-100">
+                Transaction Timeline
+              </h2>
+              <div className="space-y-4">
+                <div className="flex items-start">
+                  <div className="w-2 h-2 bg-green-500 rounded-full mt-2 mr-3"></div>
+                  <div>
+                    <div className="font-medium text-gray-900">
+                      Request Created
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      {new Date(transaction.createdAt).toLocaleString("en-IN", {
+                        dateStyle: "medium",
+                        timeStyle: "short",
+                      })}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-start">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3"></div>
+                  <div>
+                    <div className="font-medium text-gray-900">
+                      Status Updated
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      {new Date().toLocaleString("en-IN", {
+                        dateStyle: "medium",
+                        timeStyle: "short",
+                      })}{" "}
+                      - Currently {transaction.status}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Action Buttons */}
             <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
               <h2 className="text-lg font-semibold text-gray-900 mb-6 pb-4 border-b border-gray-100">
                 Actions
               </h2>
               <div className="flex flex-wrap gap-3">
-                {transaction.withdrawal.status === "pending" && (
+                {transaction?.status === "pending" && (
                   <>
                     <ActionButton
                       onClick={() => handleUpdateStatus("approved")}
@@ -384,7 +446,7 @@ function ViewWithdrawalRequest() {
                   </>
                 )}
 
-                {transaction.withdrawal.status === "approved" && (
+                {transaction?.status === "approved" && (
                   <ActionButton
                     onClick={() => handleUpdateStatus("completed")}
                     color="green"
@@ -393,7 +455,7 @@ function ViewWithdrawalRequest() {
                   </ActionButton>
                 )}
 
-                {transaction.withdrawal.status === "processing" && (
+                {transaction?.status === "processing" && (
                   <>
                     <ActionButton
                       onClick={() => handleUpdateStatus("completed")}
@@ -410,61 +472,11 @@ function ViewWithdrawalRequest() {
                   </>
                 )}
 
-                {(transaction.withdrawal.status === "reject" ||
-                  transaction.withdrawal.status === "completed") && (
-                  <ActionButton
-                    onClick={() => handleUpdateStatus("pending")}
-                    color="yellow"
-                    icon={FiClock}>
-                    Reset to Pending
-                  </ActionButton>
-                )}
-
                 <button
                   onClick={handleBack}
                   className="px-4 py-2.5 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-medium transition-colors">
                   Back to List
                 </button>
-              </div>
-            </div>
-
-            {/* Transaction Timeline */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm mt-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-6 pb-4 border-b border-gray-100">
-                Transaction Timeline
-              </h2>
-              <div className="space-y-4">
-                <div className="flex items-start">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mt-2 mr-3"></div>
-                  <div>
-                    <div className="font-medium text-gray-900">
-                      Request Created
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      {new Date(
-                        transaction.withdrawal.createdAt
-                      ).toLocaleString("en-IN", {
-                        dateStyle: "medium",
-                        timeStyle: "short",
-                      })}
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-start">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full mt-2 mr-3"></div>
-                  <div>
-                    <div className="font-medium text-gray-900">
-                      Status Updated
-                    </div>
-                    <div className="text-sm text-gray-500">
-                      {new Date().toLocaleString("en-IN", {
-                        dateStyle: "medium",
-                        timeStyle: "short",
-                      })}{" "}
-                      - Currently {transaction.withdrawal.status}
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           </>
