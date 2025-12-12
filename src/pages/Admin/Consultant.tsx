@@ -1,4 +1,9 @@
-import React, { useState, useEffect } from "react";
+import {
+  consultantStatusUpdate,
+  deleteUser,
+  getAllUsers,
+} from "@/actions/admin";
+import { useState, useEffect } from "react";
 import DataTable from "react-data-table-component";
 import {
   FiSearch,
@@ -9,115 +14,14 @@ import {
   FiClock,
   FiCheckCircle,
 } from "react-icons/fi";
+import { toast } from "sonner";
 
 function AdminConsultant() {
-  // Mock consultant data
-  const mockConsultants = [
-    {
-      id: 1,
-      firstName: "John",
-      lastName: "Doe",
-      email: "john@example.com",
-      username: "johndoe",
-      type: "Consultant",
-      consultantStatus: "Approved",
-      joinDate: "2024-01-15",
-      specialty: "Business Strategy",
-      clients: 24,
-    },
-    {
-      id: 2,
-      firstName: "Sarah",
-      lastName: "Smith",
-      email: "sarah@example.com",
-      username: "sarahs",
-      type: "Consultant",
-      consultantStatus: "Pending",
-      joinDate: "2024-02-10",
-      specialty: "Marketing",
-      clients: 15,
-    },
-    {
-      id: 3,
-      firstName: "Mike",
-      lastName: "Johnson",
-      email: "mike@example.com",
-      username: "mikej",
-      type: "Consultant",
-      consultantStatus: "Approved",
-      joinDate: "2024-01-25",
-      specialty: "Finance",
-      clients: 32,
-    },
-    {
-      id: 4,
-      firstName: "Emma",
-      lastName: "Wilson",
-      email: "emma@example.com",
-      username: "emmaw",
-      type: "Consultant",
-      consultantStatus: "Pending",
-      joinDate: "2024-03-01",
-      specialty: "IT Consulting",
-      clients: 8,
-    },
-    {
-      id: 5,
-      firstName: "Alex",
-      lastName: "Brown",
-      email: "alex@example.com",
-      username: "alexb",
-      type: "Consultant",
-      consultantStatus: "Approved",
-      joinDate: "2024-02-15",
-      specialty: "HR",
-      clients: 19,
-    },
-    {
-      id: 6,
-      firstName: "Lisa",
-      lastName: "Taylor",
-      email: "lisa@example.com",
-      username: "lisat",
-      type: "Consultant",
-      consultantStatus: "Pending",
-      joinDate: "2024-03-05",
-      specialty: "Sales",
-      clients: 12,
-    },
-    {
-      id: 7,
-      firstName: "David",
-      lastName: "Lee",
-      email: "david@example.com",
-      username: "davidl",
-      type: "Consultant",
-      consultantStatus: "Approved",
-      joinDate: "2024-01-30",
-      specialty: "Operations",
-      clients: 27,
-    },
-    {
-      id: 8,
-      firstName: "Rachel",
-      lastName: "Green",
-      email: "rachel@example.com",
-      username: "rachelg",
-      type: "Consultant",
-      consultantStatus: "Rejected",
-      joinDate: "2024-02-20",
-      specialty: "Legal",
-      clients: 0,
-    },
-  ];
-
-  const [consultants, setConsultants] = useState(mockConsultants);
-  const [filteredConsultants, setFilteredConsultants] =
-    useState(mockConsultants);
+  const [consultants, setConsultants] = useState([]);
+  const [filteredConsultants, setFilteredConsultants] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
   const [loading, setLoading] = useState(false);
-  const [selectedRows, setSelectedRows] = useState([]);
 
   // Calculate stats
   const stats = {
@@ -129,13 +33,19 @@ function AdminConsultant() {
       .length,
   };
 
-  // Fetch consultants (mock)
+  // Fetch consultants
   useEffect(() => {
     setLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      setLoading(false);
-    }, 500);
+    const fetch = async () => {
+      const { data } = await getAllUsers();
+      if (data.length > 0) {
+        const consultantsData = data.filter((u) => u.type === "Consultant");
+        setConsultants(consultantsData);
+        setFilteredConsultants(consultantsData);
+        setLoading(false);
+      }
+    };
+    fetch();
   }, []);
 
   // Handle search and filter
@@ -178,64 +88,46 @@ function AdminConsultant() {
   };
 
   // Handle approve consultant (mock)
-  const handleApprove = (id) => {
-    setConsultants((prev) =>
-      prev.map((consultant) =>
-        consultant.id === id
-          ? { ...consultant, consultantStatus: "Approved" }
-          : consultant
-      )
-    );
-    alert(`Consultant approved (mock update)`);
+  const handleApprove = async (id) => {
+    try {
+      const { data } = await consultantStatusUpdate({
+        consultantId: id,
+        consultantStatus: "Approved",
+      });
+      if (data.success) {
+        setConsultants((prev) =>
+          prev.map((consultant) =>
+            consultant._id === id
+              ? { ...consultant, consultantStatus: "Approved" }
+              : consultant
+          )
+        );
+        toast.success(`Consultant approved successfully`);
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   // Handle disapprove consultant (mock)
-  const handleDisapprove = (id) => {
-    setConsultants((prev) =>
-      prev.map((consultant) =>
-        consultant.id === id
-          ? { ...consultant, consultantStatus: "Rejected" }
-          : consultant
-      )
-    );
-    alert(`Consultant disapproved (mock update)`);
-  };
-
-  // Handle bulk actions
-  const handleBulkApprove = () => {
-    if (selectedRows.length === 0) {
-      alert("Please select consultants first");
-      return;
+  const handleDisapprove = async (id) => {
+    try {
+      const { data } = await consultantStatusUpdate({
+        consultantId: id,
+        consultantStatus: "Rejected",
+      });
+      await deleteUser({ data: { userId: id } });
+      toast.success(`Consultant Rejected successfully`);
+      const { data: conData } = await getAllUsers();
+      if (conData.length > 0) {
+        const consultantsData = conData.filter((u) => u.type === "Consultant");
+        setConsultants(consultantsData);
+        setFilteredConsultants(consultantsData);
+        setLoading(false);
+      }
+    } catch (error) {
+      console.log(error);
     }
-
-    const selectedIds = selectedRows.map((row) => row.id);
-    setConsultants((prev) =>
-      prev.map((consultant) =>
-        selectedIds.includes(consultant.id)
-          ? { ...consultant, consultantStatus: "Approved" }
-          : consultant
-      )
-    );
-    setSelectedRows([]);
-    alert(`${selectedRows.length} consultant(s) approved (mock update)`);
-  };
-
-  const handleBulkReject = () => {
-    if (selectedRows.length === 0) {
-      alert("Please select consultants first");
-      return;
-    }
-
-    const selectedIds = selectedRows.map((row) => row.id);
-    setConsultants((prev) =>
-      prev.map((consultant) =>
-        selectedIds.includes(consultant.id)
-          ? { ...consultant, consultantStatus: "Rejected" }
-          : consultant
-      )
-    );
-    setSelectedRows([]);
-    alert(`${selectedRows.length} consultant(s) rejected (mock update)`);
   };
 
   // Status badge component
@@ -298,12 +190,12 @@ function AdminConsultant() {
           ) : (
             <>
               <button
-                onClick={() => handleApprove(row.id)}
+                onClick={() => handleApprove(row._id)}
                 className="px-3 py-1.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-xs font-medium">
                 Approve
               </button>
               <button
-                onClick={() => handleDisapprove(row.id)}
+                onClick={() => handleDisapprove(row._id)}
                 className="px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-xs font-medium">
                 Reject
               </button>
@@ -429,19 +321,6 @@ function AdminConsultant() {
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-xl border border-gray-200 p-4 md:p-5 shadow-sm">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-gray-500">Selected</p>
-                <p className="text-xl md:text-2xl font-bold text-gray-900 mt-1">
-                  {selectedRows.length}
-                </p>
-              </div>
-              <div className="w-10 h-10 md:w-12 md:h-12 bg-purple-50 rounded-lg flex items-center justify-center">
-                <FiUser className="w-5 h-5 md:w-6 md:h-6 text-purple-600" />
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Filters and Bulk Actions */}
@@ -470,23 +349,6 @@ function AdminConsultant() {
                 <option value="Pending">Pending</option>
                 <option value="Rejected">Rejected</option>
               </select>
-
-              {selectedRows.length > 0 && (
-                <div className="flex gap-2">
-                  <button
-                    onClick={handleBulkApprove}
-                    className="inline-flex items-center gap-2 px-3 py-2 bg-green-50 text-green-700 hover:bg-green-100 rounded-lg text-sm font-medium transition-colors">
-                    <FiCheck className="w-4 h-4" />
-                    Approve ({selectedRows.length})
-                  </button>
-                  <button
-                    onClick={handleBulkReject}
-                    className="inline-flex items-center gap-2 px-3 py-2 bg-red-50 text-red-700 hover:bg-red-100 rounded-lg text-sm font-medium transition-colors">
-                    <FiX className="w-4 h-4" />
-                    Reject ({selectedRows.length})
-                  </button>
-                </div>
-              )}
             </div>
           </div>
         </div>
@@ -507,12 +369,6 @@ function AdminConsultant() {
               noRowsPerPage: false,
               selectAllRowsItem: false,
             }}
-            selectableRows
-            selectableRowsHighlight
-            selectableRowsVisibleOnly={false}
-            onSelectedRowsChange={({ selectedRows }) =>
-              setSelectedRows(selectedRows)
-            }
             customStyles={customStyles}
             noDataComponent={
               <div className="py-8 md:py-12 text-center">

@@ -39,4 +39,8 @@ export const creditUser = (data) => {
   return API.post("/api/admin/credit", data);
 };
 
+export const consultantStatusUpdate = (data) => {
+  return API.post("/api/admin/consultant-status-update", data);
+};
+
 
