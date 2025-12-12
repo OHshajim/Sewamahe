@@ -35,4 +35,8 @@ export const getRazorpayInfo = () => {
   return API.get("/api/admin/razorpay/get");
 };
 
+export const creditUser = (data) => {
+  return API.post("/api/admin/credit", data);
+};
+
 

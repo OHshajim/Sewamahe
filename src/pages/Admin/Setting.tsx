@@ -1,12 +1,14 @@
 import {
+  creditUser,
   getAllUsers,
   getPayGicInfo,
+  getRazorpayInfo,
   getWebData,
   updatePaygic,
   updateRazorpay,
   updateWebData,
 } from "@/actions/admin";
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import DataTable from "react-data-table-component";
 import { FiSearch, FiSave } from "react-icons/fi";
 import { toast } from "sonner";
@@ -179,14 +181,23 @@ function Settings() {
   const handleCreditSubmit = async (e) => {
     e.preventDefault();
     if (!selectedUser) return;
-
-    // Mock credit
-    alert(
-      `Credited ₹${creditAmount} to ${selectedUser.firstName} ${selectedUser.lastName} (mock update)`
-    );
-    setShowCreditModal(false);
-    setSelectedUser(null);
-    setCreditAmount(0);
+    const { data } = await creditUser({
+      userId: selectedUser._id,
+      userEmail: selectedUser.email,
+      credit: creditAmount,
+    });
+    if (data.success) {
+      toast.success(
+        `Credited ₹${creditAmount} to ${selectedUser.firstName} ${selectedUser.lastName} successfully`
+      );
+      setShowCreditModal(false);
+      setSelectedUser(null);
+      setCreditAmount(0);
+      // Refresh user list to reflect updated balance
+      const { data: users } = await getAllUsers();
+      setUsers(users);
+      setFilteredUsers(users);
+    }
   };
 
   // DataTable columns
@@ -325,6 +336,17 @@ function Settings() {
           paygic: {
             mid: paygicRes.data.data.mid,
             password: paygicRes.data.data.password,
+          },
+        }));
+      }
+      const razorpayRes = await getRazorpayInfo();
+      if (razorpayRes.data.success) {
+        setPaymentCredentials((prev) => ({
+          ...prev,
+          razorpay: {
+            key: razorpayRes.data.data.key,
+            secret: razorpayRes.data.data.secret,
+            razorpayId: razorpayRes.data.data.razorpayId,
           },
         }));
       }
