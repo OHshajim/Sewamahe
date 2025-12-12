@@ -1,4 +1,4 @@
-import { getAllUsers } from "@/actions/admin";
+import { deleteUser, getAllUsers } from "@/actions/admin";
 import { register } from "@/actions/auth";
 import { useState, useEffect, useRef } from "react";
 import DataTable from "react-data-table-component";
@@ -84,9 +84,9 @@ const AllUsers = () => {
     setShowDeleteModal(true);
   };
 
-  const deleteUser = () => {
-    console.log("Deleting user:", userToDelete);
+  const handleDeleteUser = async () => {
     if (userToDelete) {
+      const { data } = await deleteUser({ data: { userId: userToDelete._id } });
       setUsers(users.filter((u) => u._id !== userToDelete._id));
       setFilteredUsers(filteredUsers.filter((u) => u._id !== userToDelete._id));
       setToggleCleared(!toggleCleared);
@@ -417,7 +417,7 @@ const AllUsers = () => {
               </button>
               <button
                 className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 font-medium"
-                onClick={deleteUser}>
+                onClick={handleDeleteUser}>
                 Delete User
               </button>
             </div>
