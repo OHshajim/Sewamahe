@@ -18,7 +18,7 @@ function AdminTransaction() {
   const [filteredTransactions, setFilteredTransactions] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("All");
-  const [loading, setLoading] = useState(false);;
+  const [loading, setLoading] = useState(false);
 
   // Calculate stats
   const stats = {
@@ -84,7 +84,6 @@ function AdminTransaction() {
   // Handle view transaction
   const handleView = (id) => {
     navigate(`/admin/transaction/view/${id}`);
-    alert(`Would navigate to transaction details page for ID: ${id} (mock)`);
   };
 
   // Status badge component
@@ -153,15 +152,11 @@ function AdminTransaction() {
       cell: (row) => <PaymentMethodBadge method={row.paymentMethod} />,
     },
     {
-      name: "Account",
-      selector: (row) => row.account,
+      name: "Type",
+      selector: (row) => row.historyType,
       sortable: true,
       cell: (row) => (
-        <div className="text-gray-900 text-sm font-mono">
-          {row.account.length > 10
-            ? `${row.account.slice(0, 5)}...`
-            : row.account}
-        </div>
+        <div className="text-gray-900 text-sm font-mono">{row.historyType}</div>
       ),
     },
     {
