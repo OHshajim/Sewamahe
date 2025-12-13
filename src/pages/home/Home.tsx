@@ -440,12 +440,11 @@ export const Home = () => {
                 </a>
               ))}
               <div className="pt-4 space-y-3">
-                <button className="w-full text-gray-700 hover:text-black font-medium py-3">
-                  Sign In
-                </button>
-                <button className="w-full bg-black text-white py-3 rounded-lg font-medium">
-                  Start Free Trial
-                </button>
+                <Link to={"/login"}>
+                  <button className="w-full text-gray-700 hover:text-black font-medium py-3">
+                    Sign In
+                  </button>
+                </Link>
               </div>
             </div>
           </div>
@@ -479,10 +478,12 @@ export const Home = () => {
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 mb-12">
-                <button className="group bg-black text-white px-8 py-4 rounded-xl font-medium text-lg hover:bg-gray-800 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-3">
-                  Start Free Consultation
-                  <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </button>
+                <Link to={"/login"}>
+                  <button className="group bg-black text-white px-8 py-4 rounded-xl font-medium text-lg hover:bg-gray-800 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-3">
+                    Start Free Consultation
+                    <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                </Link>
                 {/* <button className="group border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-xl font-medium text-lg hover:border-black transition-all duration-300 flex items-center justify-center gap-3">
                   <Play className="h-5 w-5" />
                   Watch Demo
@@ -679,10 +680,10 @@ export const Home = () => {
                 </h3>
                 <p className="text-sm text-gray-600">{category.count}</p>
                 <div className="mt-4">
-                  <button className="text-sm text-black font-medium flex items-center gap-1 group-hover:gap-2 transition-all">
+                  {/* <button className="text-sm text-black font-medium flex items-center gap-1 group-hover:gap-2 transition-all">
                     Browse Experts
                     <ChevronRight className="h-4 w-4" />
-                  </button>
+                  </button> */}
                 </div>
               </div>
             ))}

@@ -1,12 +1,6 @@
 import { getWebData, updateWebData } from "@/actions/admin";
 import { useState, useEffect } from "react";
-import {
-  FiSave,
-  FiEye,
-  FiEdit2,
-  FiCode,
-  FiFileText,
-} from "react-icons/fi";
+import { FiSave, FiEye, FiEdit2, FiCode, FiFileText } from "react-icons/fi";
 import { toast } from "sonner";
 
 function AdminPrivacy() {

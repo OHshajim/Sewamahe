@@ -331,7 +331,7 @@ const AllUsers = () => {
       style={{
         scrollBehavior: "smooth",
       }}>
-      <div className="p-4 md:p-6">
+      <div className="p-4 md:p-6 overflow-x-auto">
         {/* Header - Fixed position for better scrolling */}
         <div className="mb-6 md:mb-8 bg-gray-50 sticky top-0 z-10 pt-2">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -400,43 +400,70 @@ const AllUsers = () => {
             </div>
           </div>
         </div>
-
         {/* DataTable Container */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-          <DataTable
-            title="User Management"
-            columns={columns}
-            data={filteredUsers}
-            progressPending={loading}
-            pagination
-            paginationPerPage={10}
-            paginationRowsPerPageOptions={[5, 10, 20, 50]}
-            paginationComponentOptions={{
-              rowsPerPageText: "Rows per page:",
-              rangeSeparatorText: "of",
-              noRowsPerPage: false,
-              selectAllRowsItem: false,
-            }}
-            customStyles={customStyles}
-            noDataComponent={
-              <div className="py-12 text-center">
-                <div className="text-gray-500 text-lg mb-2">No users found</div>
-                <div className="text-gray-400">
-                  Try adjusting your search or filters
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-auto">
+          <div className="overflow-x-auto">
+            <DataTable
+              title={
+                <div className="p-4 md:p-6">
+                  <h2 className="text-xl md:text-2xl font-bold text-gray-900">
+                    User Management
+                  </h2>
+                  <p className="text-gray-600 mt-1 text-sm md:text-base">
+                    Manage and monitor all user accounts
+                  </p>
                 </div>
-              </div>
-            }
-            progressComponent={
-              <div className="py-12 text-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-600 border-t-transparent inline-block"></div>
-                <div className="text-gray-500 mt-4">Loading users...</div>
-              </div>
-            }
-            dense
-            fixedHeader
-          />
+              }
+              columns={columns}
+              data={filteredUsers}
+              progressPending={loading}
+              pagination
+              paginationPerPage={10}
+              paginationRowsPerPageOptions={[5, 10, 20, 50]}
+              paginationComponentOptions={{
+                rowsPerPageText: "Rows per page:",
+                rangeSeparatorText: "of",
+                noRowsPerPage: false,
+                selectAllRowsItem: false,
+              }}
+              customStyles={{
+                ...customStyles,
+                table: {
+                  style: {
+                   overflow: "scroll",
+                  },
+                },
+                tableWrapper: {
+                  style: {
+                    overflow: "scroll",
+                  },
+                },
+              }}
+              noDataComponent={
+                <div className="py-8 md:py-12 px-4 text-center">
+                  <div className="text-gray-500 text-base md:text-lg mb-2">
+                    No users found
+                  </div>
+                  <div className="text-gray-400 text-sm md:text-base">
+                    Try adjusting your search or filters
+                  </div>
+                </div>
+              }
+              progressComponent={
+                <div className="py-8 md:py-12 text-center">
+                  <div className="animate-spin rounded-full h-8 md:h-12 w-8 md:w-12 border-4 border-blue-600 border-t-transparent inline-block"></div>
+                  <div className="text-gray-500 mt-4 text-sm md:text-base">
+                    Loading users...
+                  </div>
+                </div>
+              }
+              responsive
+              dense
+              fixedHeader
+              fixedHeaderScrollHeight="calc(100vh - 200px)"
+            />
+          </div>
         </div>
-
         {/* Bottom padding for better scrolling */}
         <div className="h-8"></div>
       </div>
