@@ -8,6 +8,18 @@ import NotFound from "@/pages/NotFound";
 import Conversation from "@/pages/Conversation/Conversation";
 import Meeting from "@/pages/Meeting/Meeting";
 import Monetization from "@/pages/Monetization/Monetization";
+import AdminDashboard from "@/pages/Admin/AdminDashboard";
+import AllUsers from "@/pages/Admin/AllUsers";
+import Settings from "@/pages/Admin/Setting";
+import AdminConsultant from "@/pages/Admin/Consultant";
+import WithdrawalRequest from "@/pages/Admin/WithdrawalRequest";
+import ViewWithdrawalRequest from "@/pages/Admin/ViewWithdrawalRequest";
+import AdminTransaction from "@/pages/Admin/AllTransaction";
+import ViewAdminTransaction from "@/pages/Admin/ViewTransaction";
+import AdminAbout from "@/pages/Admin/AdminAbout";
+import AdminContact from "@/pages/Admin/AdminContact";
+import AdminTerms from "@/pages/Admin/AdminTerms";
+import AdminPrivacy from "@/pages/Admin/AdminPrivacy";
 
 function PrivetRoutes() {
     const navigate = useNavigate()
@@ -16,16 +28,16 @@ function PrivetRoutes() {
     const user = useAppSelector((state) => state.auth.user);
     const call = useAppSelector((state) => state.call);
 
-    useEffect(() => {
-        if (!call.incoming) return;
-        navigate(`/meeting/${call.roomId}`, { replace: true });
-    }, [call, navigate]);
+  useEffect(() => {
+    if (!call.incoming) return;
+    navigate(`/meeting/${call.roomId}`, { replace: true });
+  }, [call, navigate]);
 
-    useEffect(() => {
-        if (!user) {
-            navigate("/login");
-        }
-    }, [user]);
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+    }
+  }, [user]);
 
     return (
         <div className="flex overflow-hidden h-screen">
@@ -44,12 +56,45 @@ function PrivetRoutes() {
 
             <div className="flex-1 border-r">
                 <Routes>
-                    <Route path="/dashboard" element={<DashBoard isHome={isHome} setisHome={setIsHome} /> }/>
-                    <Route path="/monetization" element={<Monetization/>} />
+                    <Route
+                        path="/dashboard"
+                        element={
+                            <DashBoard isHome={isHome} setisHome={setIsHome} />
+                        }
+                    />
+                    <Route path="/monetization" element={<Monetization />} />
                     <Route path="/room/:id" element={<Conversation />} />
                     <Route path="/room/:id/info" element={<DetailsPanel />} />
                     <Route path="/meeting/:roomId" element={<Meeting />} />
                     <Route path="/*" element={<NotFound />} />
+                    {/* admin */}
+                    <Route path="/admin" element={<AdminDashboard />} />
+                    <Route path="/admin/users" element={<AllUsers />} />
+                    <Route path="/admin/settings" element={<Settings />} />
+                    <Route
+                        path="/admin/consultant"
+                        element={<AdminConsultant />}
+                    />
+                    <Route
+                        path="/admin/withdrawal-request"
+                        element={<WithdrawalRequest />}
+                    />
+                    <Route
+                        path="/admin/withdrawal-request/view/:id"
+                        element={<ViewWithdrawalRequest />}
+                    />
+                    <Route
+                        path="/admin/transaction"
+                        element={<AdminTransaction />}
+                    />
+                    <Route
+                        path="/admin/transaction/view/:id"
+                        element={<ViewAdminTransaction />}
+                    />
+                    <Route path="/admin/aboutAs" element={<AdminAbout />} />
+                    <Route path="/admin/contactAs" element={<AdminContact />} />
+                    <Route path="/admin/terms" element={<AdminTerms />} />
+                    <Route path="/admin/privacy" element={<AdminPrivacy />} />
                 </Routes>
             </div>
             {location.includes("/info") || location.includes("/meeting") || (

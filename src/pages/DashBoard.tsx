@@ -18,14 +18,14 @@ export const DashBoard = ({ isHome, setisHome }) => {
         fetchData();
     }, [dispatch]);
 
-    return (
-        <div className={` h-screen ${isHome ? "" : " max-md:hidden"}`}>
-            <div className="bg-white h-14 flex items-center px-4">
-                <button className="text-xl md:hidden" onClick={()=>setisHome(false)}>
+  return (
+    <div className={` h-screen ${isHome ? "" : " max-md:hidden"}`}>
+        <div className="bg-white h-14 flex items-center px-4">
+            <button className="text-xl md:hidden" onClick={()=>setisHome(false)}>
                     <FiArrowLeft />
-                </button>
-            </div>
-            <div className="flex flex-col justify-center items-center h-full bg-gray-100">
+            </button>
+        </div>
+        <div className="flex flex-col justify-center items-center h-full bg-gray-100">
                 <div className="flex flex-col items-center">
                     <h3 className="text-3xl text-center font-bold py-10 text-gray-500">
                         {user?.firstName} {user?.lastName}
@@ -39,7 +39,7 @@ export const DashBoard = ({ isHome, setisHome }) => {
                         Add contacts to your favorites to reach them faster.
                     </p>
                 </div>
-            </div>
         </div>
-    );
+    </div>
+  );
 };
