@@ -95,7 +95,7 @@ const Message = memo(({ message, previous, next, onOpen }: MessageProps) => {
                         src={`${configuration.url || ''}/api/image/${content}`}
                         alt="attachment"
                         onClick={() => onOpen?.(message)}
-                        className="max-w-xs rounded-xl cursor-pointer hover:opacity-90 transition"
+                        className="sm:max-w-xs rounded-xl cursor-pointer hover:opacity-90 transition"
                     />
                 );
 

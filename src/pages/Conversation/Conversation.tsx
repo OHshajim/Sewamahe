@@ -51,7 +51,7 @@ const Conversation = () => {
     return (
         <div className="flex flex-col h-full bg-slate-100">
             <RoomNav />
-            <div className="flex-1 overflow-y-auto space-y-2 my-5">
+            <div className="flex-1 overflow-y-auto space-y-2">
                 {loading ? <Loader className="w-16 h-16" /> : <Content />}
             </div>
             <SendBar />

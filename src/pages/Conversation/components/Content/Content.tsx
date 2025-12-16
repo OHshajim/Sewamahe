@@ -147,7 +147,7 @@ export default function Content() {
                     className="h-full overflow-y-auto scroll-smooth"
                 >
                     <div className="flex flex-col min-h-full">
-                        <div className="max-w-4xl mx-auto w-full px-4 py-2">
+                        <div className="max-w-4xl mx-auto w-full px-2 sm:px-4 py-2">
                             {/* Messages */}
                             {messages.map((message, index) => (
                                 <Message

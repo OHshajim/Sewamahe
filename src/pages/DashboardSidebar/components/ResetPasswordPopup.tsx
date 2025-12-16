@@ -20,7 +20,7 @@ interface ResetPasswordPopupProps {
     onClose: () => void;
 }
 
-export function ResetPasswordPopup({ open, onClose }: ResetPasswordPopupProps) {
+export const ResetPasswordPopup = ({ open, onClose }: ResetPasswordPopupProps)=> {
     const user = useAppSelector((state) => state.auth.user);
     const [password, setPassword] = useState("");
     const [repeatPassword, setRepeatPassword] = useState("");

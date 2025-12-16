@@ -1,5 +1,5 @@
 import { Route, Routes,useNavigate } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAppSelector } from "@/hooks/useDispatch";
 import { DashBoard } from "@/pages/DashBoard";
 import Sidebar from "@/pages/DashboardSidebar/Sidebar";
@@ -7,9 +7,11 @@ import DetailsPanel from "@/pages/DashboardSidebar/DetailsPanel";
 import NotFound from "@/pages/NotFound";
 import Conversation from "@/pages/Conversation/Conversation";
 import Meeting from "@/pages/Meeting/Meeting";
+import Monetization from "@/pages/Monetization/Monetization";
 
 function PrivetRoutes() {
     const navigate = useNavigate()
+    const [isHome, setIsHome] = useState(false);
     const location = window.location.pathname;
     const user = useAppSelector((state) => state.auth.user);
     const call = useAppSelector((state) => state.call);
@@ -28,12 +30,22 @@ function PrivetRoutes() {
     return (
         <div className="flex overflow-hidden h-screen">
             {call.status !== "in-call" && (
-                <Sidebar className="max-w-[360px] w-full border-r max-md:hidden" />
+                <Sidebar
+                    setIsHome={setIsHome}
+                    className={` w-full border-r md:max-w-[360px] ${
+                        isHome
+                            ? " hidden md:flex"
+                            : location == "/dashboard"
+                            ? "flex w-full"
+                            : "hidden md:flex"
+                    }`}
+                />
             )}
 
             <div className="flex-1 border-r">
                 <Routes>
-                    <Route path="/dashboard" element={<DashBoard />} />
+                    <Route path="/dashboard" element={<DashBoard isHome={isHome} setisHome={setIsHome} /> }/>
+                    <Route path="/monetization" element={<Monetization/>} />
                     <Route path="/room/:id" element={<Conversation />} />
                     <Route path="/room/:id/info" element={<DetailsPanel />} />
                     <Route path="/meeting/:roomId" element={<Meeting />} />

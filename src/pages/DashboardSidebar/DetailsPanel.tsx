@@ -56,7 +56,8 @@ const DetailsPanel = ({ className = "" }) => {
             if (user._id !== person._id) selectedUser = person;
         });
     }
-
+    console.log(selectedUser);
+    
     return (
         <div className={`${className}`}>
             {location.includes("/info") && (
@@ -66,10 +67,30 @@ const DetailsPanel = ({ className = "" }) => {
             )}
             <div className={`p-6 flex flex-col items-center space-y-8`}>
                 <Picture size={200} user={selectedUser} />
-                <h3 className=" font-semibold">
-                    <span className="font-normal">Name: </span>
-                    {selectedUser?.firstName} {selectedUser?.lastName}
-                </h3>
+                <div >
+                    <h3 className=" font-semibold">
+                        <span className="font-normal">Name: </span>
+                        {selectedUser?.firstName} {selectedUser?.lastName}
+                    </h3>
+                    {selectedUser.type === "Consultant" && (
+                        <div>
+                            <h3 className=" font-semibold">
+                                <span className="font-normal">
+                                    Qualification:{" "}
+                                </span>
+                                {selectedUser?.qualification}
+                            </h3>
+                            <h3 className=" font-semibold">
+                                <span className="font-normal">Status: </span>
+                                {selectedUser?.consultantStatus}
+                            </h3>
+                            <h3 className=" font-semibold">
+                                <span className="font-normal">Fees: </span>
+                                {selectedUser?.price}/Minute
+                            </h3>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     );

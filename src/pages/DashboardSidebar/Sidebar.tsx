@@ -11,19 +11,21 @@ import Favorites from "./components/Favorites";
 import Room from "./components/components/Room";
 import Search from "./components/Search";
 import TopBar from "./components/DashboardNav";
-import { ResetPasswordPopup } from "./components/Popup";
+import { ResetPasswordPopup } from "./components/ResetPasswordPopup";
 import Setting from "./Setting";
 import { FiMessageCircle, FiSearch, FiStar } from "react-icons/fi";
 import { SearchIcon } from "lucide-react";
+import { QualificationPopup } from "./components/QualificationPopup";
 
 
-const Sidebar = ({ className = "" }) => {
+const Sidebar = ({ className = "", setIsHome }) => {
     const user = useAppSelector((state) => state.auth.user); 
     const rooms = useAppSelector((state) => state.chat.rooms); 
     const [users, setUsers] = useState([]);
     const [tab, setTab] = useState<"rooms" | "search" | "favorites">("rooms");
     const [showSettings, setShowSettings] = useState(false);
     const [popup, showPopup] = useState(false);
+    const [qualificationPopup, setQualificationPopup] = useState(false);
     const [search, setSearch] = useState("");
 
     const navigate = useNavigate();
@@ -72,6 +74,7 @@ const Sidebar = ({ className = "" }) => {
                 showSettings={showSettings}
                 Logout={handleLogout}
                 user={user}
+                setIsHome={setIsHome}
             />
 
             <div className="relative w-full cursor-text">
@@ -111,10 +114,17 @@ const Sidebar = ({ className = "" }) => {
                     ))}
                 </TabsList>
                 {showSettings ? (
-                    <Setting handleLogout={handleLogout} showPopup={showPopup} />
+                    <Setting
+                        handleLogout={handleLogout}
+                        showPopup={showPopup}
+                        showQualificationPopup={setQualificationPopup}
+                    />
                 ) : (
                     <>
-                        <TabsContent value="rooms">
+                        <TabsContent
+                            value="rooms"
+                            className="overflow-y-auto h-full pb-20"
+                        >
                             {rooms.length > 0 ? (
                                 rooms.map((room) => (
                                     <Room key={room._id} room={room} />
@@ -127,11 +137,14 @@ const Sidebar = ({ className = "" }) => {
                         </TabsContent>
                         <TabsContent
                             value="search"
-                            className="overflow-y-auto h-full"
+                            className="overflow-y-auto h-full pb-20"
                         >
                             <Search users={users} />
                         </TabsContent>
-                        <TabsContent value="favorites">
+                        <TabsContent
+                            value="favorites"
+                            className="overflow-y-auto h-full pb-20"
+                        >
                             <Favorites />
                         </TabsContent>
                     </>
@@ -143,6 +156,14 @@ const Sidebar = ({ className = "" }) => {
                     open={popup}
                     onClose={() => {
                         showPopup(false);
+                    }}
+                />
+            )}
+            {qualificationPopup && (
+                <QualificationPopup
+                    open={qualificationPopup}
+                    onClose={() => {
+                        setQualificationPopup(false);
                     }}
                 />
             )}

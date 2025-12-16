@@ -6,8 +6,9 @@ import { setCredentials } from "@/features/auth/authSlice";
 import { useAppDispatch, useAppSelector } from "@/hooks/useDispatch";
 import { useRef } from "react";
 import { FiEdit2 } from "react-icons/fi";
+import { Link } from "react-router-dom";
 
-const Setting = ({ handleLogout, showPopup }) => {
+const Setting = ({ handleLogout, showPopup, showQualificationPopup }) => {
     const user = useAppSelector((state) => state.auth.user);
     const fileInput = useRef(null);
     const dispatch = useAppDispatch();
@@ -56,15 +57,25 @@ const Setting = ({ handleLogout, showPopup }) => {
             >
                 Change Password
             </Button>
+            {user.type === "Consultant" && (
+                <Button
+                    onClick={() => showQualificationPopup(true)}
+                    className="uppercase w-full bg-black/90 text-xs hover:bg-black/30 hover:text-black"
+                >
+                    Qualification
+                </Button>
+            )}
             <Button
                 onClick={remove}
                 className="uppercase w-full bg-black/90 text-xs hover:bg-black/30 hover:text-black"
             >
                 Remove Picture
             </Button>
-            <Button className="uppercase w-full bg-black/90 text-xs hover:bg-black/30 hover:text-black">
-                Monetization
-            </Button>
+            <Link to="/monetization" className="w-full">
+                <Button className="uppercase w-full bg-black/90 text-xs hover:bg-black/30 hover:text-black">
+                    Monetization
+                </Button>
+            </Link>
             <Button
                 onClick={handleLogout}
                 variant="destructive"

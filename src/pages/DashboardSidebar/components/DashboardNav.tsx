@@ -7,11 +7,11 @@ import {
     DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import Picture from "../../../components/Picture";
-import { Ellipsis, Settings } from "lucide-react";
+import { Ellipsis, Home, Settings } from "lucide-react";
 import { Link } from "react-router-dom";
 
 
-const TopBar = ({ setShowSettings, showSettings, Logout, user }) => {
+const TopBar = ({ setShowSettings, showSettings, Logout, user, setIsHome }) => {
     const links = [
         { name: "Home", path: "/" },
         { name: "About Us", path: "/about" },
@@ -30,6 +30,13 @@ const TopBar = ({ setShowSettings, showSettings, Logout, user }) => {
             </Link>
             <div className="flex">
                 {/* Settings Button */}
+                <Button
+                    variant="ghost"
+                    onClick={() => setIsHome(true)}
+                    className="md:hidden"
+                >
+                    <Home className="scale-110" />
+                </Button>
                 <Button
                     variant="ghost"
                     onClick={() => setShowSettings(!showSettings)}
