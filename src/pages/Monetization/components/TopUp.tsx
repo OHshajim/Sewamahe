@@ -108,13 +108,15 @@ export default function TopUp({ setRefetch, refetch, rechargeAmount, paymentMeth
         try {
             // Redirect user to payment page
             const { data } = await API.post(
-                `${configuration.url}/api/payment/balance/top-up/paygic`,
+                `${configuration.url}/api/payment/top-up/paygic`,
                 {
                     amount: rechargeAmount,
                     userId: user._id,
                 }
             );
+            console.log(data);
             if (data.success) {
+                
                 window.location.href = data.payPageUrl;
             }
         } catch (err) {

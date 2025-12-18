@@ -130,10 +130,10 @@ export default function Content() {
                     <Lightbox
                         medium={`${configuration.url || ""}/api/image/${
                             openImage.content
-                        }`}
+                        }/1024`}
                         large={`${configuration.url || ""}/api/image/${
                             openImage.content
-                        }`}
+                        }/2048`}
                         alt="Lightbox"
                         hideDownload
                         onClose={() => setOpenImage(null)}

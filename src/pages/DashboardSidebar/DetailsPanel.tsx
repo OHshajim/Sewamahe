@@ -56,7 +56,6 @@ const DetailsPanel = ({ className = "" }) => {
             if (user._id !== person._id) selectedUser = person;
         });
     }
-    console.log(selectedUser);
     
     return (
         <div className={`${className}`}>
