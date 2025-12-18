@@ -1,12 +1,12 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import Picture from "../../../../components/Picture";
 import { useAppDispatch, useAppSelector } from "@/hooks/useDispatch";
-import Message from "./components/Message";
-import { moreMessages } from "@/features/chat/chatSlice";
-import configuration from "@/config/configuration";
-import Loader from "@/components/Loader";
-import { getMoreMessages } from "@/actions/message";
 import { Lightbox } from "react-modal-image";
+import { moreMessages } from "@/features/chat/chatSlice";
+import { getMoreMessages } from "@/actions/message";
+import configuration from "@/config/configuration";
+import Message from "./components/Message";
+import Loader from "@/components/Loader";
+import Picture from "../../../../components/Picture";
 
 export default function Content() {
     const dispatch = useAppDispatch();

@@ -24,8 +24,7 @@ import { toggleFavorite } from "@/actions/user";
 import { useEffect, useRef, useState } from "react";
 import Picture from "@/components/Picture";
 import { FaStar } from "react-icons/fa";
-import { getMeetingRoom, postCall } from "@/actions/call";
-import { outgoingCall } from "@/features/call/callSlice";
+import { Calling} from "@/actions/call";
 
 export const RoomNav = () => {
     const user = useAppSelector((state) => state.auth.user);
@@ -51,28 +50,7 @@ export const RoomNav = () => {
     ).slice(0, 22);
 
     const call = async (isVideo: boolean) => {
-        if (onlineUsers.filter((u) => u.id === other._id).length === 0)
-            return toast.warning("User is offline!");
-        const type = isVideo ? "video" : "audio";
-        dispatch(
-            outgoingCall({
-                roomId: room._id,
-                type,
-                callee: other,
-                caller: user,
-            })
-        );
-        try {
-            const res = await getMeetingRoom({
-                caller: user._id,
-                callee: other._id,
-                type,
-            });
-            navigate(`/meeting/${res._id}`, { replace: true });
-            await postCall({ roomID: room._id, meetingID: res._id, type });
-        } catch (e) {
-            toast.error("Server error. Unable to initiate call.");
-        }
+        await Calling({isVideo, dispatch,navigate,onlineUsers,other,room,toast,user})
     };
 
     const handleFavorite = async () => {

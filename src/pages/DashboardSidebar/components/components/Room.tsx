@@ -16,8 +16,7 @@ import Picture from "@/components/Picture";
 import { useAppSelector } from "@/hooks/useDispatch";
 import { getRooms, removeRoom } from "@/actions/Rooms";
 import { setRooms } from "@/features/chat/chatSlice";
-import { outgoingCall } from "@/features/call/callSlice";
-import { getMeetingRoom, postCall } from "@/actions/call";
+import { Calling} from "@/actions/call";
 
 export default function Room({ room }) {
     const onlineUsers = useAppSelector((state) => state.chat.onlineUsers);
@@ -80,32 +79,7 @@ export default function Room({ room }) {
     };
 
     const call = async () => {
-        // if (info?.balance.amount <= 4 && user.type === "user")
-        //     return toast.warning("Low balance! Please top up your account.");
-        // if (info?.consultantStatus === "Pending" && user.type === "Consultant")
-        //     return toast.warning("You are unverified consultant");
-        if ( onlineUsers.filter((u) => u.id === other._id).length === 0 )
-            return toast.warning("User is offline!");
-        const type = "audio";
-        dispatch(
-            outgoingCall({
-                roomId: room._id,
-                type,
-                callee: other,
-                caller: user,
-            })
-        );
-        try {
-            const res = await getMeetingRoom({
-                caller: user._id,
-                callee: other._id,
-                type,
-            });
-            navigate(`/meeting/${res._id}`, { replace: true });
-            await postCall({ roomID: room._id, meetingID: res._id, type });
-        } catch (e) {
-            toast.error("Server error. Unable to initiate call.");
-        }
+        await Calling({isVideo:false, dispatch,navigate,onlineUsers,other,room,toast,user})
     };
 
     const remove = async () => {
